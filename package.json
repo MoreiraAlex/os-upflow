@@ -6,10 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "db:dev": "npm run prisma:push && npm run prisma:generate",
+    "db:prod": "npm run prisma:generate && npm run prisma:push"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "next": "14.2.35",
+    "prisma": "^5.22.0",
     "react": "^18",
     "react-dom": "^18"
   },
