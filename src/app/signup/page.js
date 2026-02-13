@@ -3,54 +3,61 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 export default function SignupPage() {
   const router = useRouter()
+  let submitting = false
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (submitting) return
+    submitting = true
 
     const form = e.target
 
-    const res = await fetch('/api/auth/signup', {
+    const signupPromise = fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        workshopName: form.workshop.value,
         username: form.username.value,
         email: form.email.value,
         password: form.password.value,
-        workshopName: form.workshop.value,
       }),
+    }).then((res) => {
+      if (!res.ok) throw new Error()
+      return res.json()
     })
 
-    if (!res.ok) {
-      alert('Erro ao criar conta')
-    }
-
-    router.push('/')
-    router.refresh()
+    toast.promise(signupPromise, {
+      loading: 'Criando conta...',
+      success: () => {
+        router.push('/')
+        router.refresh()
+        submitting = false
+        return 'Conta criada com sucesso'
+      },
+      error: () => {
+        submitting = false
+        return 'Erro ao criar conta'
+      },
+    })
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Criar conta</CardTitle>
-          <CardDescription>
-            Crie sua conta para acessar o OS Upflow
-          </CardDescription>
-        </CardHeader>
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-10">
+      <div className="flex items-center justify-center px-6 lg:col-span-3">
+        <div className="w-full max-w-sm">
+          <div className="mb-8">
+            <h1 className="text-2xl font-semibold">OS Upflow</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Crie sua conta para acessar o painel
+            </p>
+          </div>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="workshop">Oficina</Label>
               <Input id="workshop" name="workshop" required />
@@ -71,22 +78,32 @@ export default function SignupPage() {
               <Input id="password" name="password" type="password" required />
             </div>
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full hover:cursor-pointer">
               Criar conta
             </Button>
           </form>
+        </div>
+      </div>
 
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Já tem uma conta?{' '}
-            <a
-              href="/login"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Entrar
-            </a>
+      <div className="hidden lg:flex items-center justify-center bg-primary text-primary-foreground px-12 lg:col-span-7">
+        <div className="max-w-md">
+          <h3 className="text-3xl font-semibold leading-tight">
+            Comece organizando
+            <br />
+            suas ordens hoje
+          </h3>
+
+          <p className="mt-4 text-sm text-primary-foreground/80">
+            Crie sua oficina, gerencie ordens de serviço e acompanhe tudo em um
+            painel simples, pensado para o dia a dia da oficina.
           </p>
-        </CardContent>
-      </Card>
+
+          <p className="mt-2 text-sm text-primary-foreground/70">
+            Automatize atendimentos pelo WhatsApp sem perder controle ou
+            histórico.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
