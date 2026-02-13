@@ -14,6 +14,7 @@ model Workshop {
   createdAt DateTime @default(now())
   
   users     User[]
+  orders    ServiceOrder[]
 }
 
 model User {
@@ -35,7 +36,6 @@ model User {
 
   @@map("user")
 }
-
 
 model Session {
   id    String    @id @default(cuid()) @map("_id")
@@ -83,4 +83,23 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+
+model ServiceOrder {
+  id          String   @id @default(cuid()) @map("_id")
+  number      Int      @unique
+  status      String
+  client      String?
+  vehicle     String
+  description String
+
+  workshopId  String
+  workshop    Workshop @relation(fields: [workshopId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workshopId])
+  @@unique([workshopId, number])
 }
