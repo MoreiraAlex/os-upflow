@@ -20,21 +20,19 @@ export default function SignupPage() {
 
     const form = e.target
 
-    const res = await fetch('/api/auth/sign-up/email', {
+    const res = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: form.username.value,
-        name: form.username.value,
-        displayUsername: form.username.value,
         email: form.email.value,
         password: form.password.value,
+        workshopName: form.workshop.value,
       }),
     })
 
     if (!res.ok) {
       alert('Erro ao criar conta')
-      return
     }
 
     router.push('/')
@@ -54,24 +52,18 @@ export default function SignupPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
+              <Label htmlFor="workshop">Oficina</Label>
+              <Input id="workshop" name="workshop" required />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="username">Usuário</Label>
-              <Input
-                id="username"
-                name="username"
-                placeholder="seu_usuario"
-                required
-              />
+              <Input id="username" name="username" required />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="voce@email.com"
-                required
-              />
+              <Input id="email" name="email" type="email" required />
             </div>
 
             <div className="space-y-2">

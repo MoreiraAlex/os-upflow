@@ -14,7 +14,6 @@ export default function LoginPage() {
     e.preventDefault()
     if (submitting) return
     submitting = true
-
     const form = e.target
 
     const loginPromise = fetch('/api/auth/sign-in/username', {
@@ -39,7 +38,7 @@ export default function LoginPage() {
       },
       error: () => {
         submitting = false
-        return 'usuário ou senha inválidos'
+        return 'Usuário ou senha inválidos'
       },
     })
   }

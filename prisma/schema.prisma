@@ -8,25 +8,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// model Oficina {
-//   id    String    @id @default(cuid()) @map("_id")
-//   nome      String
-//   // users     User[]
-//   createdAt DateTime @default(now())
-// }
+model Workshop {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String   @unique
+  createdAt DateTime @default(now())
+  
+  users     User[]
+}
 
 model User {
-  id    String    @id @default(cuid()) @map("_id")
+  id              String    @id @default(cuid()) @map("_id")
   email           String    @unique
   username        String    @unique
   displayUsername String?
-  // oficinaId       String
-  // oficina         Oficina   @relation(fields: [oficinaId], references: [id])
   createdAt       DateTime  @default(now())
   name            String
   emailVerified   Boolean   @default(false)
   image           String?
   updatedAt       DateTime  @updatedAt
+
+  workshopId      String?
+  workshop        Workshop?   @relation(fields: [workshopId], references: [id])
+
   sessions        Session[]
   accounts        Account[]
 

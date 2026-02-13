@@ -8,9 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
+    "prisma:push": "prisma db push --force-reset",
+    "prisma:seed": "npx prisma db seed",
     "db:dev": "npm run prisma:push && npm run prisma:generate",
     "db:prod": "npm run prisma:generate && npm run prisma:push"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
