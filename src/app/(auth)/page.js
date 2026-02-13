@@ -20,7 +20,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted px-4">
+    <div className="bg-background">
       <Button variant="outline" onClick={handleLogout}>
         Sair
       </Button>

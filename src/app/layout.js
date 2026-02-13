@@ -26,7 +26,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="pt-br">
       <body className={`antialiased`} suppressHydrationWarning={true}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
           <Toaster />
         </ThemeProvider>
