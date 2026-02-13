@@ -10,18 +10,23 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { useRouter } from 'next/navigation'
 
 export default function SignupPage() {
+  const router = useRouter()
+
   async function handleSubmit(e) {
     e.preventDefault()
 
     const form = e.target
 
-    const res = await fetch('/api/auth/signup', {
+    const res = await fetch('/api/auth/sign-up/email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: form.username.value,
+        name: form.username.value,
+        displayUsername: form.username.value,
         email: form.email.value,
         password: form.password.value,
       }),
@@ -32,7 +37,8 @@ export default function SignupPage() {
       return
     }
 
-    window.location.href = '/dashboard'
+    router.push('/')
+    router.refresh()
   }
 
   return (
