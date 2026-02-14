@@ -18,7 +18,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="pt-4">
-        <Logo />
+        <Logo width={200} height={80} />
       </SidebarHeader>
 
       <SidebarContent>

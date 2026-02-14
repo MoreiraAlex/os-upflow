@@ -1,5 +1,6 @@
 'use client'
 
+import { Logo } from '@/components/image/logo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -48,7 +49,8 @@ export default function LoginPage() {
       <div className="flex items-center justify-center px-6 lg:col-span-3">
         <div className="w-full max-w-sm">
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold">OS Upflow</h1>
+            <Logo width={800} height={250} />
+
             <p className="mt-1 text-sm text-muted-foreground">
               Acesse sua conta para continuar
             </p>
