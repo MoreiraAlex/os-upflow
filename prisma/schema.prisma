@@ -15,12 +15,14 @@ model Workshop {
   
   users     User[]
   orders    ServiceOrder[]
+
+  @@map("workshop")
 }
 
 model User {
   id              String    @id @default(cuid()) @map("_id")
   email           String    @unique
-  username        String    @unique
+  username        String    
   displayUsername String?
   createdAt       DateTime  @default(now())
   name            String
@@ -34,6 +36,7 @@ model User {
   sessions        Session[]
   accounts        Account[]
 
+  @@unique([workshopId, username])
   @@map("user")
 }
 
@@ -88,7 +91,7 @@ model Verification {
 
 model ServiceOrder {
   id          String   @id @default(cuid()) @map("_id")
-  number      Int      @unique
+  number      Int      
   status      String
   client      String?
   vehicle     String
@@ -102,4 +105,5 @@ model ServiceOrder {
 
   @@index([workshopId])
   @@unique([workshopId, number])
+  @@map("serviceOrder")
 }
