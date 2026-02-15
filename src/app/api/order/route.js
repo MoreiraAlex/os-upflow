@@ -93,8 +93,6 @@ export async function GET(req) {
 
     const where = filters.length ? { AND: filters } : {}
 
-    console.log(where)
-
     const [sortField, sortOrder] = sortParam.split(':')
     const sortMap = {
       number: { number: sortOrder },
