@@ -39,7 +39,7 @@ export async function POST(req) {
       },
     })
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json(result.user, { status: 201 })
   } catch (error) {
     console.error('SIGNUP_ERROR', error)
 
