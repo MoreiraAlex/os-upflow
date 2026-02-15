@@ -99,7 +99,12 @@ export async function PATCH(req, { params }) {
     }
 
     const updatedOrder = await prisma.serviceOrder.update({
-      where: { number: parseInt(number) },
+      where: {
+        workshopId_number: {
+          workshopId: user.workshopId,
+          number: parseInt(number),
+        },
+      },
       data: {
         ...(status && { status }),
         ...(client !== undefined && { client }),
@@ -157,7 +162,12 @@ export async function DELETE(req, { params }) {
     }
 
     await prisma.serviceOrder.delete({
-      where: { number: parseInt(number) },
+      where: {
+        workshopId_number: {
+          workshopId: user.workshopId,
+          number: parseInt(number),
+        },
+      },
     })
 
     return NextResponse.json({ status: 204 })

@@ -158,7 +158,7 @@ export async function POST(req) {
     }
 
     const body = await req.json()
-    const { client, vehicle, description } = body
+    const { client, vehicle, description, status } = body
 
     if (!vehicle || !description) {
       return NextResponse.json(
@@ -177,7 +177,7 @@ export async function POST(req) {
     const serviceOrder = await prisma.serviceOrder.create({
       data: {
         number: nextNumber,
-        status: 'Aberta',
+        status: status || '1',
         client,
         vehicle,
         description,

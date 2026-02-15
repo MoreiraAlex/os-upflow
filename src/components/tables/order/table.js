@@ -1,9 +1,20 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { DataTable } from '@/components/tables/dataTable'
-import { columns } from '@/components/tables/order/columns'
+import { columns as baseColumns } from '@/components/tables/order/columns'
 import { DataTableToolbar } from '@/components/tables/toolbar'
+import { Button } from '@/components/ui/button'
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet'
+import { Plus } from 'lucide-react'
+
+import { useCrudSheet } from '@/hooks/useCrudSheet'
+import { OrderForm } from '@/components/forms/orderForm'
 
 export function ServiceOrdersTable() {
   const [data, setData] = useState([])
@@ -32,16 +43,54 @@ export function ServiceOrdersTable() {
     fetchOrders()
   }, [query])
 
+  const { open, setOpen, editingItem, openCreate, openEdit, submit, remove } =
+    useCrudSheet({
+      endpoint: '/api/order',
+      onSuccess: fetchOrders,
+    })
+
+  const cols = baseColumns({
+    onEdit: (row) => openEdit(row),
+    onDelete: (row) => remove(row),
+  })
+
   return (
     <>
-      <DataTableToolbar setQuery={setQuery} />
+      <div className="flex items-center justify-between mb-4">
+        <DataTableToolbar setQuery={setQuery} />
+
+        <Button onClick={openCreate} className="hover:cursor-pointer">
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Ordem
+        </Button>
+      </div>
+
       <DataTable
-        columns={columns}
+        columns={cols}
         data={data}
         pagination={pagination}
         query={query}
         setQuery={setQuery}
       />
+
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetContent side="right" className="w-[480px] p-6">
+          <SheetHeader className="mb-4">
+            <SheetTitle>
+              {editingItem
+                ? 'Editar Ordem de Serviço'
+                : 'Nova Ordem de Serviço'}
+            </SheetTitle>
+            <SheetDescription>Preencha os dados abaixo.</SheetDescription>
+          </SheetHeader>
+
+          <OrderForm
+            defaultValues={editingItem || undefined}
+            onSubmit={submit}
+            onCancel={() => setOpen(false)}
+          />
+        </SheetContent>
+      </Sheet>
     </>
   )
 }
