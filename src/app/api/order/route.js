@@ -41,7 +41,7 @@ export async function GET(req) {
 
     const filters = []
     filters.push({
-      workshopId: session.user.workshopId,
+      workshopId: user.workshopId,
     })
 
     if (search) {
@@ -92,6 +92,8 @@ export async function GET(req) {
     })
 
     const where = filters.length ? { AND: filters } : {}
+
+    console.log(where)
 
     const [sortField, sortOrder] = sortParam.split(':')
     const sortMap = {
