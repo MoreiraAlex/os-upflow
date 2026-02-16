@@ -38,7 +38,6 @@ export function OrderForm({ defaultValues, onSubmit, onCancel }) {
 
   useEffect(() => {
     if (defaultValues) {
-      console.log(defaultValues)
       form.reset({
         ...defaultValues,
         status: String(defaultValues.status),

@@ -43,13 +43,13 @@ export const columns = ({ onEdit, onDelete }) => [
   },
   {
     id: 'actions',
-    header: '',
+    header: 'Ações',
     cell: ({ row }) => {
       const item = row.original
 
       return (
         <TooltipProvider>
-          <div className="flex gap-2 justify-end">
+          <div className="flex gap-1 justify-start">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" onClick={() => onEdit(item)}>
