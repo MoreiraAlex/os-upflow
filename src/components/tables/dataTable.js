@@ -64,7 +64,7 @@ export function DataTable({ columns, data, pagination, setQuery, query }) {
 
   return (
     <div className="space-y-4">
-      <div className="border rounded-xl shadow-sm overflow-hidden h-[65vh] bg-card">
+      <div className="border rounded-xl shadow-sm overflow-x-auto overflow-y-auto h-[60vh] sm:h-[65vh] bg-card">
         <Table>
           <TableHeader className="bg-muted/40">
             {table.getHeaderGroups().map((headerGroup) => (
@@ -76,7 +76,7 @@ export function DataTable({ columns, data, pagination, setQuery, query }) {
                   return (
                     <TableHead
                       key={header.id}
-                      className={`font-semibold ${
+                      className={`font-semibold whitespace-nowrap ${
                         canSort
                           ? 'cursor-pointer select-none hover:bg-muted/70'
                           : ''
@@ -111,7 +111,10 @@ export function DataTable({ columns, data, pagination, setQuery, query }) {
                   className="hover:bg-muted/30 transition-colors odd:bg-muted/10"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3 text-sm">
+                    <TableCell
+                      key={cell.id}
+                      className="py-3 px-3 text-sm whitespace-nowrap"
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

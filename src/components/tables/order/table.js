@@ -56,10 +56,13 @@ export function ServiceOrdersTable() {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 ">
         <DataTableToolbar setQuery={setQuery} />
 
-        <Button onClick={openCreate} className="hover:cursor-pointer">
+        <Button
+          onClick={openCreate}
+          className="w-full sm:w-auto hover:cursor-pointer"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Nova Ordem
         </Button>
@@ -74,7 +77,7 @@ export function ServiceOrdersTable() {
       />
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-[480px] p-6">
+        <SheetContent side="right" className="w-full sm:w-[480px] p-4 sm:p-6">
           <SheetHeader className="mb-4">
             <SheetTitle>
               {editingItem

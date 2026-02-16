@@ -37,11 +37,11 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <div className="p-4 sm:p-6 space-y-6">
+      <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((item) => (
           <Card key={item.label}>
             <CardHeader className="pb-2">
@@ -58,9 +58,13 @@ export default function DashboardPage() {
 
       {/* Últimas OS */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Últimas Ordens de Serviço</CardTitle>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            className="self-start sm:self-auto"
+          >
             Ver todas
           </Button>
         </CardHeader>
@@ -70,7 +74,11 @@ export default function DashboardPage() {
             {recentOrders.map((order) => (
               <div
                 key={order.number}
-                className="flex items-center justify-between border rounded-lg p-3"
+                className="
+                  flex flex-col gap-2
+                  sm:flex-row sm:items-center sm:justify-between
+                  border rounded-lg p-3
+                "
               >
                 <div>
                   <p className="font-medium">
@@ -81,7 +89,9 @@ export default function DashboardPage() {
                   </p>
                 </div>
 
-                <Badge variant="outline">{order.status}</Badge>
+                <div className="flex justify-end sm:justify-start">
+                  <Badge variant="outline">{order.status}</Badge>
+                </div>
               </div>
             ))}
           </div>
