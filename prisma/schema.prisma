@@ -140,3 +140,11 @@ model ServiceOrder {
   @@unique([workshopId, number])
   @@map("serviceOrder")
 }
+
+model Invite {
+  id        String   @id @default(cuid()) @map("_id")
+  token     String   @unique
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}

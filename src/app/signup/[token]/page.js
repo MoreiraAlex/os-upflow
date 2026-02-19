@@ -3,10 +3,11 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 export default function SignupPage() {
+  const { token } = useParams()
   const router = useRouter()
   let submitting = false
 
@@ -25,6 +26,7 @@ export default function SignupPage() {
         username: form.username.value,
         email: form.email.value,
         password: form.password.value,
+        token,
       }),
     }).then((res) => {
       if (!res.ok) throw new Error()

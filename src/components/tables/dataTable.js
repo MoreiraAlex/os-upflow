@@ -108,7 +108,7 @@ export function DataTable({ columns, data, pagination, setQuery, query }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="hover:bg-muted/30 transition-colors odd:bg-muted/10 cursor-pointer"
+                  className="hover:bg-muted/30 transition-colors odd:bg-muted/10"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

@@ -5,41 +5,60 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req) {
   try {
     const body = await req.json()
-    const { email, password, username, workshopName } = body
+    const { email, password, username, workshopName, token } = body
 
-    const result = await auth.api.signUpEmail({
-      body: {
-        email,
-        password,
-        username,
-        name: username,
-        displayUsername: username,
-      },
+    if (!token) {
+      return NextResponse.json({ error: 'Token obrigatório' }, { status: 400 })
+    }
+
+    const invite = await prisma.invite.findUnique({
+      where: { token },
     })
 
-    if (!result?.user?.id) {
+    if (!invite || invite.used || invite.expiresAt < new Date()) {
       return NextResponse.json(
-        { error: 'Failed to create user' },
+        { error: 'Convite inválido ou expirado' },
         { status: 400 },
       )
     }
 
-    const workshop = await prisma.workshop.findUnique({
-      where: { name: workshopName },
+    const result = await prisma.$transaction(async (tx) => {
+      const signUp = await auth.api.signUpEmail({
+        body: {
+          email,
+          password,
+          username,
+          name: username,
+          displayUsername: username,
+        },
+      })
+
+      if (!signUp?.user?.id) {
+        throw new Error('Falha ao criar usuário')
+      }
+
+      const workshop = await tx.workshop.create({
+        data: {
+          name: workshopName,
+        },
+      })
+
+      await tx.user.update({
+        where: { id: signUp.user.id },
+        data: {
+          workshopId: workshop.id,
+        },
+      })
+
+      await tx.invite.update({
+        where: { token },
+        data: { used: true },
+      })
+
+      return signUp.user
     })
 
-    if (!workshop) {
-      return NextResponse.json({ error: 'Workshop not found' }, { status: 404 })
-    }
-
-    await prisma.user.update({
-      where: { id: result.user.id },
-      data: {
-        workshopId: workshop.id,
-      },
-    })
-
-    return NextResponse.json(result.user, { status: 201 })
+    return NextResponse.json(result, { status: 201 })
   } catch (error) {
     console.error('SIGNUP_ERROR', error)
 
