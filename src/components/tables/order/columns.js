@@ -6,7 +6,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { EditIcon, Trash2 } from 'lucide-react'
+import { EditIcon, Eye, Trash2 } from 'lucide-react'
+import Link from 'next/link'
 
 const STATUS_LABEL = {
   1: 'Aberta',
@@ -50,6 +51,19 @@ export const columns = ({ onEdit, onDelete }) => [
       return (
         <TooltipProvider>
           <div className="flex gap-1 justify-start">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href={`/order/${item.number}`}>
+                  <Button variant="ghost">
+                    <Eye className="w-6 h-6" />
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Vizualizar</p>
+              </TooltipContent>
+            </Tooltip>
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" onClick={() => onEdit(item)}>

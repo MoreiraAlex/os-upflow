@@ -18,7 +18,9 @@ export default async function Layout({ children }) {
       <AppSidebar />
       <main className="w-full">
         <SidebarTrigger />
-        {children}
+        <div className="border rounded-lg shadow-lg mx-4 my-2 h-[90vh]">
+          {children}
+        </div>
       </main>
     </SidebarProvider>
   )

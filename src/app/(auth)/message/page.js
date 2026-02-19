@@ -38,7 +38,7 @@ export default function MessagesPage() {
 
   return (
     <div className="h-[calc(100vh-64px)] md:grid md:grid-cols-[320px_1fr] gap-4 p-4">
-      <Card className={cn('p-2 h-[90vh]', selected && 'hidden md:block')}>
+      <Card className={cn('p-2 h-[86vh]', selected && 'hidden md:block')}>
         <h2 className="font-semibold mb-3 px-2 text-lg border-b-2 h-16 flex items-center">
           Celulares
         </h2>
@@ -64,7 +64,7 @@ export default function MessagesPage() {
 
       <Card
         className={cn(
-          'p-2 flex flex-col h-[90vh]',
+          'p-2 flex flex-col h-[86vh]',
           !selected && 'hidden md:flex',
         )}
       >

@@ -29,7 +29,7 @@ export async function GET(req) {
     const params = Object.fromEntries(url.searchParams.entries())
 
     const page = Number(params.page) || 1
-    const pageSize = Number(params.limit || params.pageSize) || 10
+    const pageSize = Number(params.limit || params.pageSize) || 8
     const search = params.search || ''
     const sortParam = params.sort || 'createdAt:desc'
 

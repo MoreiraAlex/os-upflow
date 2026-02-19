@@ -20,7 +20,14 @@ import { ArrowUpDown } from 'lucide-react'
 import { DataTablePagination } from '@/components/tables/pagination'
 import { useState } from 'react'
 
-export function DataTable({ columns, data, pagination, setQuery, query }) {
+export function DataTable({
+  columns,
+  data,
+  pagination,
+  setQuery,
+  query,
+  onRowClick,
+}) {
   const [sorting, setSorting] = useState(
     query.sort
       ? [
@@ -108,7 +115,8 @@ export function DataTable({ columns, data, pagination, setQuery, query }) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  className="hover:bg-muted/30 transition-colors odd:bg-muted/10"
+                  onClick={() => onRowClick?.(row.original)}
+                  className="hover:bg-muted/30 transition-colors odd:bg-muted/10 cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell

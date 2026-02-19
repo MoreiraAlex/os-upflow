@@ -25,7 +25,7 @@ export function ContactTable() {
 
   const [query, setQuery] = useState({
     page: 1,
-    limit: 10,
+    limit: 8,
     sort: '',
   })
 
