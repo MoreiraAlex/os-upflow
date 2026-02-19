@@ -22,6 +22,7 @@ export default function SignupPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        cnpj: form.cnpj.value,
         workshopName: form.workshop.value,
         username: form.username.value,
         email: form.email.value,
@@ -61,8 +62,13 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="workshop">Oficina</Label>
+              <Label htmlFor="workshop">Empresa</Label>
               <Input id="workshop" name="workshop" required />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cnpj">CNPJ</Label>
+              <Input id="cnpj" name="cnpj" required />
             </div>
 
             <div className="space-y-2">

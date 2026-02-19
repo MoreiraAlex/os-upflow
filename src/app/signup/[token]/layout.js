@@ -14,6 +14,8 @@ export default async function SignupPage({ children, params }) {
     },
   )
 
+  console.log(res)
+
   if (!res.ok) return notFound()
   const invite = await res.json()
 

@@ -21,6 +21,7 @@ export default function LoginPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        cnpj: form.cnpj.value,
         username: form.username.value,
         password: form.password.value,
       }),
@@ -57,6 +58,11 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="cnpj">CNPJ</Label>
+              <Input id="cnpj" name="cnpj" type="text" required />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="username">Usuário</Label>
               <Input id="username" name="username" type="text" required />

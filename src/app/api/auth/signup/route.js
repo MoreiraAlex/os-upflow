@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req) {
   try {
     const body = await req.json()
-    const { email, password, username, workshopName, token } = body
+    const { email, password, username, cnpj, workshopName, token } = body
 
     if (!token) {
       return NextResponse.json({ error: 'Token obrigatório' }, { status: 400 })
@@ -39,6 +39,7 @@ export async function POST(req) {
 
       const workshop = await tx.workshop.create({
         data: {
+          cnpj,
           name: workshopName,
         },
       })
