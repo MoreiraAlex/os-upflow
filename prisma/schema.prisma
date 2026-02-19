@@ -63,6 +63,7 @@ model User {
   emailVerified   Boolean   @default(false)
   image           String?
   updatedAt       DateTime  @updatedAt
+  role            String    @default("user")
 
   workshopId      String?
   workshop        Workshop?   @relation(fields: [workshopId], references: [id], onDelete: Cascade)

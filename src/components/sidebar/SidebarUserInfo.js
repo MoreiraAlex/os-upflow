@@ -20,7 +20,15 @@ export async function SidebarUserInfo() {
   if (!session) {
     redirect('/login')
   }
-  const user = session.user
+
+  const incomingHeaders = headers()
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
+    headers: {
+      cookie: incomingHeaders.get('cookie') ?? '',
+    },
+    cache: 'no-store',
+  })
+  const user = await res.json()
 
   return (
     <DropdownMenu>
@@ -33,13 +41,16 @@ export async function SidebarUserInfo() {
         <div className="flex flex-col text-sm justify-start items-start">
           <span className="font-medium">
             {user.username}
-            <Badge variant="secondary" className="ml-2">
-              {/* #ToDo - Buscar a role do usuario */}
-              Admin
-            </Badge>
+
+            {user.role && (
+              <Badge variant="secondary" className="ml-2">
+                {user.role}
+              </Badge>
+            )}
           </span>
-          {/* #ToDo - Buscar a workshop do usuario */}
-          <span className="text-gray-500">Oficina</span>
+          <span className="text-gray-500">
+            {user.workshop.name || 'Oficina'}
+          </span>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48">

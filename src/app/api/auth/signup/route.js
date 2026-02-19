@@ -23,6 +23,13 @@ export async function POST(req) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      const workshop = await tx.workshop.create({
+        data: {
+          cnpj,
+          name: workshopName,
+        },
+      })
+
       const signUp = await auth.api.signUpEmail({
         body: {
           email,
@@ -37,17 +44,11 @@ export async function POST(req) {
         throw new Error('Falha ao criar usuário')
       }
 
-      const workshop = await tx.workshop.create({
-        data: {
-          cnpj,
-          name: workshopName,
-        },
-      })
-
       await tx.user.update({
         where: { id: signUp.user.id },
         data: {
           workshopId: workshop.id,
+          role: 'admin',
         },
       })
 
