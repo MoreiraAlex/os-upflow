@@ -15,10 +15,8 @@ import { Plus } from 'lucide-react'
 
 import { useCrudSheet } from '@/hooks/useCrudSheet'
 import { OrderForm } from '@/components/forms/orderForm'
-import { useRouter } from 'next/navigation'
 
 export function ServiceOrdersTable() {
-  const router = useRouter()
   const [data, setData] = useState([])
   const [pagination, setPagination] = useState({
     page: 1,
@@ -76,9 +74,6 @@ export function ServiceOrdersTable() {
         pagination={pagination}
         query={query}
         setQuery={setQuery}
-        onRowClick={(row) => {
-          router.push(`/order/${row.number}`)
-        }}
       />
 
       <Sheet open={open} onOpenChange={setOpen}>
