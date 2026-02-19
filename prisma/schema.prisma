@@ -8,16 +8,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Contact {
+  id         String   @id @default(cuid()) @map("_id")
+  phone      String   @unique
+  name       String?
+  createdAt  DateTime @default(now())  
+
+  workshopId String
+  workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+  messages   Message[]
+
+  @@map("contact")
+}
+
+
+model Message {
+  id        String   @id @default(cuid()) @map("_id")
+
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  direction String
+  type      String
+  content   String
+
+  createdAt DateTime @default(now())
+
+  @@map("message")
+}
+
+
 model Workshop {
   id        String   @id @default(cuid()) @map("_id")
   name      String   @unique
   createdAt DateTime @default(now())
-  
+
+  contacts  Contact[]
   users     User[]
   orders    ServiceOrder[]
 
   @@map("workshop")
 }
+
 
 model User {
   id              String    @id @default(cuid()) @map("_id")

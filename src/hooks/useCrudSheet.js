@@ -24,7 +24,9 @@ export function useCrudSheet({ endpoint, onSuccess }) {
 
   function submit(values) {
     const request = fetch(
-      editingItem ? `${endpoint}/${editingItem.number}` : endpoint,
+      editingItem
+        ? `${endpoint}/${editingItem.number || editingItem.id}`
+        : endpoint,
       {
         method: editingItem ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,7 +52,7 @@ export function useCrudSheet({ endpoint, onSuccess }) {
   }
 
   function remove(item) {
-    const request = fetch(`${endpoint}/${item.number}`, {
+    const request = fetch(`${endpoint}/${item.number || item.id}`, {
       method: 'DELETE',
     }).then((res) => {
       if (!res.ok) throw new Error()
