@@ -50,15 +50,6 @@ export async function POST(req) {
       )
     }
 
-    await auth.api.updateSession({
-      body: {
-        data: {
-          workshopId: user.workshopId,
-        },
-      },
-      headers: req.headers,
-    })
-
     return NextResponse.json(signIn, { status: 201 })
   } catch (error) {
     console.error('LOGIN_ERROR', error)
