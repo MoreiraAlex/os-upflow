@@ -17,6 +17,7 @@ import { useCrudSheet } from '@/hooks/useCrudSheet'
 import { OrderForm } from '@/components/forms/orderForm'
 
 export function ServiceOrdersTable() {
+  const [loading, setLoading] = useState(true)
   const [data, setData] = useState([])
   const [pagination, setPagination] = useState({
     page: 1,
@@ -30,6 +31,7 @@ export function ServiceOrdersTable() {
   })
 
   async function fetchOrders() {
+    setLoading(true)
     const params = new URLSearchParams(query)
 
     const res = await fetch(`/api/order?${params.toString()}`)
@@ -37,6 +39,7 @@ export function ServiceOrdersTable() {
 
     setData(json.data)
     setPagination(json.pagination)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -74,6 +77,7 @@ export function ServiceOrdersTable() {
         pagination={pagination}
         query={query}
         setQuery={setQuery}
+        loading={loading}
       />
 
       <Sheet open={open} onOpenChange={setOpen}>

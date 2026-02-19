@@ -19,8 +19,16 @@ import {
 import { ArrowUpDown } from 'lucide-react'
 import { DataTablePagination } from '@/components/tables/pagination'
 import { useState } from 'react'
+import { Skeleton } from '@/components/ui/skeleton'
 
-export function DataTable({ columns, data, pagination, setQuery, query }) {
+export function DataTable({
+  columns,
+  data,
+  pagination,
+  setQuery,
+  query,
+  loading = false,
+}) {
   const [sorting, setSorting] = useState(
     query.sort
       ? [
@@ -104,7 +112,17 @@ export function DataTable({ columns, data, pagination, setQuery, query }) {
           </TableHeader>
 
           <TableBody>
-            {data.length > 0 ? (
+            {loading ? (
+              [...Array(10)].map((_, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {columns.map((_, colIndex) => (
+                    <TableCell key={colIndex} className="py-3 px-3">
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : data.length > 0 ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

@@ -4,11 +4,15 @@ import { Card } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function MessagesPage() {
   const [contacts, setContacts] = useState([])
   const [selected, setSelected] = useState(null)
   const [messages, setMessages] = useState([])
+  const [loadingContacts, setLoadingContacts] = useState(true)
+  const [loadingMessages, setLoadingMessages] = useState(false)
+
   const bottomRef = useRef(null)
 
   useEffect(() => {
@@ -17,9 +21,13 @@ export default function MessagesPage() {
 
   useEffect(() => {
     async function fetchContacts() {
+      setLoadingContacts(true)
+
       const res = await fetch(`/api/contact`)
       const json = await res.json()
+
       setContacts(json.data)
+      setLoadingContacts(false)
     }
 
     fetchContacts()
@@ -27,10 +35,15 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!selected) return
+
     async function fetchMessages() {
+      setLoadingMessages(true)
+
       const res = await fetch(`/api/message?contactId=${selected.id}`)
       const json = await res.json()
+
       setMessages(json || [])
+      setLoadingMessages(false)
     }
 
     fetchMessages()
@@ -44,20 +57,29 @@ export default function MessagesPage() {
         </h2>
 
         <ScrollArea className="h-[calc(100vh-160px)]">
-          <div className="space-y-2">
-            {contacts.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setSelected(c)}
-                className={cn(
-                  'w-full text-left p-3 rounded-md hover:bg-muted transition',
-                  selected?.id === c.id && 'bg-muted',
-                )}
-              >
-                <p className="font-medium">{c.name || 'Sem nome'}</p>
-                <p className="text-xs text-muted-foreground">{c.phone}</p>
-              </button>
-            ))}
+          <div className="space-y-2 px-2">
+            <div className="space-y-2 px-2">
+              {loadingContacts
+                ? [...Array(6)].map((_, i) => (
+                    <div key={i} className="space-y-2 p-3">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                    </div>
+                  ))
+                : contacts.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setSelected(c)}
+                      className={cn(
+                        'w-full text-left p-3 rounded-md hover:bg-muted transition',
+                        selected?.id === c.id && 'bg-muted',
+                      )}
+                    >
+                      <p className="font-medium">{c.name || 'Sem nome'}</p>
+                      <p className="text-xs text-muted-foreground">{c.phone}</p>
+                    </button>
+                  ))}
+            </div>
           </div>
         </ScrollArea>
       </Card>
@@ -110,6 +132,29 @@ export default function MessagesPage() {
                     </span>
                   </div>
                 ))}
+
+                {loadingMessages
+                  ? [...Array(6)].map((_, i) => (
+                      <div key={i} className="flex">
+                        <Skeleton className="h-14 w-2/3 rounded-lg" />
+                      </div>
+                    ))
+                  : messages.map((msg) => (
+                      <div
+                        key={msg.id}
+                        className={cn(
+                          'max-w-[75%] rounded-lg px-3 py-2 text-sm',
+                          msg.direction === 'out'
+                            ? 'ml-auto bg-primary text-primary-foreground'
+                            : 'bg-muted',
+                        )}
+                      >
+                        <p>{msg.content}</p>
+                        <span className="block text-[10px] opacity-70 mt-1">
+                          {new Date(msg.createdAt).toLocaleString('pt-BR')}
+                        </span>
+                      </div>
+                    ))}
                 <div ref={bottomRef} />
               </div>
             </ScrollArea>
