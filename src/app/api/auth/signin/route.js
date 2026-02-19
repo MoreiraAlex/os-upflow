@@ -36,21 +36,22 @@ export async function POST(req) {
       )
     }
 
-    const signIn = await auth.api.signInEmail({
+    // const signIn = await auth.api.signInEmail({
+    return await auth.api.signInEmail({
       body: {
         email: user.email,
         password,
       },
     })
 
-    if (!signIn?.user) {
-      return NextResponse.json(
-        { error: 'Credenciais inválidas' },
-        { status: 401 },
-      )
-    }
+    // if (!signIn?.user) {
+    //   return NextResponse.json(
+    //     { error: 'Credenciais inválidas' },
+    //     { status: 401 },
+    //   )
+    // }
 
-    return NextResponse.json(signIn, { status: 201 })
+    // return NextResponse.json(signIn, { status: 201 })
   } catch (error) {
     console.error('LOGIN_ERROR', error)
 
