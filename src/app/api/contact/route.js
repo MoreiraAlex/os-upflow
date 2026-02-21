@@ -5,17 +5,38 @@ import { headers } from 'next/headers'
 
 export async function GET(req) {
   try {
+    let userId = ''
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const authHeader = req.headers.get('authorization')
+      const sessionBearer = await auth.api.getSession({
+        headers: {
+          authorization: authHeader,
+        },
+      })
+
+      if (!sessionBearer?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+
+      userId = sessionBearer.user.id
+    } else {
+      userId = session.user.id
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { workshopId: true },
+      where: { id: userId },
+      select: {
+        workshopId: true,
+        workshop: {
+          select: {
+            name: true,
+          },
+        },
+      },
     })
 
     if (!user?.workshopId) {
@@ -102,6 +123,7 @@ export async function GET(req) {
     return NextResponse.json(
       {
         data,
+        workshop: user.workshop.name,
         pagination: {
           total,
           page,

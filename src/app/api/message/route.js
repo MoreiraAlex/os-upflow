@@ -10,7 +10,16 @@ export async function GET(req) {
     })
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const authHeader = req.headers.get('authorization')
+      const sessionBearer = await auth.api.getSession({
+        headers: {
+          authorization: authHeader,
+        },
+      })
+
+      if (!sessionBearer?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
     }
 
     const { searchParams } = new URL(req.url)
@@ -39,7 +48,16 @@ export async function POST(req) {
     })
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const authHeader = req.headers.get('authorization')
+      const sessionBearer = await auth.api.getSession({
+        headers: {
+          authorization: authHeader,
+        },
+      })
+
+      if (!sessionBearer?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
     }
 
     const body = await req.json()

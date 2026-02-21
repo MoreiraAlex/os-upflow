@@ -52,26 +52,27 @@ export async function GET(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
+  console.log('oi')
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    })
+    // const session = await auth.api.getSession({
+    //   headers: await headers(),
+    // })
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    // if (!session?.user?.id) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { workshopId: true },
-    })
+    // const user = await prisma.user.findUnique({
+    //   where: { id: session.user.id },
+    //   select: { workshopId: true },
+    // })
 
-    if (!user?.workshopId) {
-      return NextResponse.json(
-        { error: 'User has no workshop' },
-        { status: 400 },
-      )
-    }
+    // if (!user?.workshopId) {
+    //   return NextResponse.json(
+    //     { error: 'User has no workshop' },
+    //     { status: 400 },
+    //   )
+    // }
 
     const { number } = await params
     const body = await req.json()
@@ -87,7 +88,8 @@ export async function PATCH(req, { params }) {
     const existingOrder = await prisma.serviceOrder.findFirst({
       where: {
         number: parseInt(number),
-        workshopId: user.workshopId,
+        // workshopId: user.workshopId,
+        workshopId: 'cmltitvzq0001hy0p8fmyxnde',
       },
     })
 
@@ -101,15 +103,16 @@ export async function PATCH(req, { params }) {
     const updatedOrder = await prisma.serviceOrder.update({
       where: {
         workshopId_number: {
-          workshopId: user.workshopId,
+          // workshopId: user.workshopId,
+          workshopId: 'cmltitvzq0001hy0p8fmyxnde',
           number: parseInt(number),
         },
       },
       data: {
-        ...(status && { status }),
-        ...(client !== undefined && { client }),
-        ...(vehicle && { vehicle }),
-        ...(description && { description }),
+        ...(status !== undefined && { status: String(status) }),
+        ...(client !== undefined && { client: String(client) }),
+        ...(vehicle !== undefined && { vehicle: String(vehicle) }),
+        ...(description !== undefined && { description: String(description) }),
       },
     })
 

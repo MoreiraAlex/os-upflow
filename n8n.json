@@ -1,0 +1,1937 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "message": "=Olá!\nAqui é o assistente do OS Upflow.\nSeu número está vinculado à empresa {{ $('Busca contato').item.json.workshop }}.\n\nComo posso ajudar com suas ordens de serviço?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        2384,
+        160
+      ],
+      "id": "7432bc63-8f83-4019-8de2-a0d5a871d177",
+      "name": "Chat1",
+      "webhookId": "9fe0bb79-40e6-49ec-9ede-1c0e39d41453",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0927dece-d6d2-46b4-b925-1a43ea237ffe",
+              "leftValue": "={{ $json.data.length }}",
+              "rightValue": "={{ 0 }}",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        416
+      ],
+      "id": "de6912bc-7d4e-41d0-8f42-b5a465edb1fd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "message": "=Este número não está cadastrado no sistema.\nPor favor, solicite ao responsável pelo sistema que realize o cadastro para continuar.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        512
+      ],
+      "id": "224504e4-026a-488d-9b3e-e14c3f672283",
+      "name": "Chat2",
+      "webhookId": "9fe0bb79-40e6-49ec-9ede-1c0e39d41453"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cbef9e3c-0e9c-451c-8b0a-011bc36c1b43",
+              "leftValue": "={{ $('Verifica necessidade de nova conversa').item.json.startNewConversation }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2096,
+        320
+      ],
+      "id": "524a14ad-2379-47be-8ffb-1881d9c567f9",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').item.json.url }}/api/message  ",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $json.data[0].id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1424,
+        320
+      ],
+      "id": "2d3ea448-6112-43ca-91b5-5a0bec1d7594",
+      "name": "Busca mensagens",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items.length) {\n  return [{ json: { startNewConversation: true } }];\n}\n\nitems.sort((a, b) =>\n  new Date(a.json.createdAt) - new Date(b.json.createdAt)\n);\n\nconst lastItem = items[items.length - 1];\n\nif (!lastItem.json.createdAt) {\n  return [{ json: { startNewConversation: true } }];\n}\n\nconst lastDate = new Date(lastItem.json.createdAt);\nconst now = new Date();\n\nconst diffMs = now - lastDate;\n\nconst startNewConversation = diffMs > 4 * 60 * 60 * 1000;\n\nreturn [\n  {\n    json: {\n      startNewConversation,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        320
+      ],
+      "id": "f545d3df-7f4d-4e18-b05a-592d089042b3",
+      "name": "Verifica necessidade de nova conversa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('When chat message received').first().json.chatInput }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1872,
+        320
+      ],
+      "id": "7b3ce559-3060-4ae6-af18-a1430c29f0e5",
+      "name": "Salva mensagem enviada pelo usuario"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Olá!\nAqui é o assistente do OS Upflow.\nSeu número está vinculado à empresa {{ $('Busca contato').item.json.workshop }}.\n\nComo posso ajudar com suas ordens de serviço?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2672,
+        160
+      ],
+      "id": "de4edf2d-9dd7-497c-852b-dbeb3e15a4b4",
+      "name": "Salva mensagem enviada pelo bot"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').first().json.chatInput }}",
+        "options": {
+          "systemMessage": "=Você é o assistente conversacional do OS Upflow, um sistema de ordens de serviço para oficinas e autocenters operado exclusivamente via WhatsApp pela oficina.\nAs mensagens podem ser incompletas, não lineares ou misturar intenções. Identifique a intenção principal e use sempre o contexto recente antes de pedir novos dados. Intenções reconhecidas: criar OS, consultar OS, atualizar OS, responder dúvidas operacionais simples.\nSe houver ambiguidade entre múltiplas OS, peça somente um identificador (ex.: placa ou número da OS). Nunca crie uma nova OS automaticamente se houver uma claramente relacionada. Você não fala com clientes finais, não trata financeiro, estoque, orçamento ou usuários, e não explica funcionamento interno do sistema.\nIMPORTANTE: Retorne exclusivamente JSON puro. Nunca use markdown, blocos de código ou qualquer texto fora do JSON:\n{\"target\": \"user\" | \"backend\", \"content\": {}}\nUse \"target\": \"user\" para responder ou pedir esclarecimento com content: <mensagem>.\nUse \"target\": \"backend\" quando houver ação clara, com content:\n{\"action\": \"create\" | \"read\" | \"update\", \"payload\": {}}\ncreate: payload = {...campos}\nread: payload = {...campos de busca}\nupdate: payload = {\"number\":<numero_os>,\"data\":{...campos}}}}\nEstrutura da OS:\nnumber\nstatus - 1: Aberta |  2: Em andamento |  3: Concluída |  4: Cancelada\nclient\nvehicle\ndescription\nEstrutura mínima da OS:\nclient\nvehicle\ndescription\nEm caso de dúvida, responda com \"target\": \"user\" pedindo esclarecimento curto e natural."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2320,
+        464
+      ],
+      "id": "b0b85a86-59ea-4cd2-9439-cf3aa7ec5a40",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        688
+      ],
+      "id": "97ff0445-7568-418a-9581-59b05d73dbcb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "54cB0IVNgZhFxIFR",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2464,
+        688
+      ],
+      "id": "35666c89-6c4a-45af-b9e0-0f7482ab740f",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.content }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        3120,
+        272
+      ],
+      "id": "92c2a5a0-88bf-4252-a554-409a96f293f1",
+      "name": "Chat",
+      "webhookId": "9fe0bb79-40e6-49ec-9ede-1c0e39d41453"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca mensagens').first().json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Switch entre user e backend').item.json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3344,
+        272
+      ],
+      "id": "c849fe5b-e3a1-4043-a58e-bd848850a2e2",
+      "name": "Salva mensagem enviada pelo bot1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  const parsed = JSON.parse(item.json.output);\n\n  item.json = {\n    ...item.json,\n    ...parsed,\n  };\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        464
+      ],
+      "id": "ac16aa4b-4209-4782-9972-362b0dbf5aed",
+      "name": "Converte resposta em JSON"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.target }}",
+                    "rightValue": "user",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "66400595-2f83-43a0-b269-992458e7965c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "819697a3-ed9e-43ca-9b15-8a7811f975ef",
+                    "leftValue": "={{ $json.target }}",
+                    "rightValue": "backend",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2896,
+        464
+      ],
+      "id": "caea8f5b-8563-4fe7-b1e8-fbe4b5d77002",
+      "name": "Switch entre user e backend"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Converte resposta em JSON').item.json.content.action }}",
+                    "rightValue": "create",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "66400595-2f83-43a0-b269-992458e7965c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a4630243-cdf5-425e-8032-e282769316e4",
+                    "leftValue": "={{ $('Converte resposta em JSON').item.json.content.action }}",
+                    "rightValue": "read",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b1ca722c-de8a-4907-83ef-f99be3f80c50",
+                    "leftValue": "={{ $('Converte resposta em JSON').item.json.content.action }}",
+                    "rightValue": "update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        3120,
+        640
+      ],
+      "id": "bc692f3c-a40c-4ae4-8b80-efe86d6d47c3",
+      "name": "Switch entre verbos"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "message": "Confirma a criação dessa ordem ?",
+        "responseType": "approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Sim",
+            "disapproveLabel": "Não"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        3344,
+        464
+      ],
+      "id": "5d8f2994-78d8-49ab-9a2d-d951fda4488f",
+      "name": "Chat3",
+      "webhookId": "b0d3545a-9ea9-495e-abe8-14e1aefca7dc"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Confirma a criação dessa ordem ?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3568,
+        464
+      ],
+      "id": "1194a341-a297-4c84-8477-1d7d6afea8ad",
+      "name": "Salva mensagem enviada pelo bot2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3495c7f8-07cc-44ec-9782-56a97de57abe",
+              "leftValue": "={{ $('Chat3').item.json.data.approved }}",
+              "rightValue": "{{ true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3792,
+        464
+      ],
+      "id": "c54e237c-9319-4b86-a28f-1a958a91d5fc",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Sim"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4016,
+        368
+      ],
+      "id": "b868aa58-dbbf-4cf7-9870-80d5d0d85218",
+      "name": "Salva mensagem enviada pelo bot3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Não"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4016,
+        560
+      ],
+      "id": "6e2ebc92-26bc-40fb-a5e2-70adfb962f4e",
+      "name": "Salva mensagem enviada pelo bot4"
+    },
+    {
+      "parameters": {
+        "message": "=Ordem #{{ $json.number }} criada com sucesso!",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        4464,
+        368
+      ],
+      "id": "91a83edb-19da-41ec-b578-e20e9058aba5",
+      "name": "Chat4",
+      "webhookId": "b373b739-0224-4ced-b022-e2b7fae3578a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Ordem #{{ $json.number }} criada com sucesso!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4688,
+        368
+      ],
+      "id": "de338b2e-24da-48f7-9123-a7eb00e7d75d",
+      "name": "Salva mensagem enviada pelo bot5"
+    },
+    {
+      "parameters": {
+        "message": "Tudo bem, me informe novamente como posso ajudar com suas ordens de serviço?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        4240,
+        560
+      ],
+      "id": "33ce7e2a-ce91-4780-bc8b-014fc47f6701",
+      "name": "Chat5",
+      "webhookId": "b373b739-0224-4ced-b022-e2b7fae3578a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Tudo bem, me informe novamente como posso ajudar com suas ordens de serviço?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4464,
+        560
+      ],
+      "id": "ac45e7d4-3d93-4386-a55d-e5becd5d915e",
+      "name": "Salva mensagem enviada pelo bot6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/order",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client",
+              "value": "={{ $('Converte resposta em JSON').item.json.content.payload.client }}"
+            },
+            {
+              "name": "vehicle",
+              "value": "={{ $('Converte resposta em JSON').item.json.content.payload.vehicle }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $('Converte resposta em JSON').item.json.content.payload.description }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4240,
+        368
+      ],
+      "id": "1a3edb3d-6d93-4603-940d-cbe839dd0919",
+      "name": "Criar Ordem de Serviço"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').first().json.url }}/api/order",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "={{ $json.key }}",
+              "value": "={{ $json.value }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3568,
+        752
+      ],
+      "id": "34ca3b92-5802-492f-a3e4-df7e6cf50e85",
+      "name": "Busca ordens"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  const payload = item.json.content?.payload || {};\n\n  for (const [key, value] of Object.entries(payload)) {\n    output.push({\n      json: {\n        key,\n        value,\n      },\n    });\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3344,
+        752
+      ],
+      "id": "5dea2aeb-4f34-4cf3-9967-34fe02d28275",
+      "name": "Converte json em keys e values"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.message }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        4016,
+        752
+      ],
+      "id": "71993b92-505e-47ca-8be6-301fb979e064",
+      "name": "Chat6",
+      "webhookId": "edfb934b-7e4f-43d6-a7ab-65fabbed9462"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Converte saída das ordens').item.json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4240,
+        752
+      ],
+      "id": "5f42b374-7793-44c0-93c9-1a502b0cf7cd",
+      "name": "Salva mensagem enviada pelo bot7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst STATUS_LABEL = {\n  1: 'Aberta',\n  2: 'Em andamento',\n  3: 'Concluída',\n  4: 'Cancelada',\n};\n\nfunction formatDate(dateString) {\n  if (!dateString) return '-';\n\n  const date = new Date(dateString);\n\n  if (isNaN(date)) return dateString;\n\n  return date.toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit',\n  });\n}\n\nconst orders = items[0].json.data || [];\n\nif (!orders.length) {\n  return [\n    {\n      json: {\n        message:\n          'Não encontrei nenhuma ordem de serviço. Como posso te ajudar?',\n      },\n    },\n  ];\n}\n\nlet message = '*Suas ordens de serviço*\\n\\n';\n\nfor (const order of orders) {\n  const statusTraduzido =\n    STATUS_LABEL[order.status] ?? order.status ?? '-';\n\n  const dataFormatada = formatDate(order.createdAt);\n\n  message +=\n    '━━━━━━━━━━━━━━━\\n' +\n    `🔢 Número: #${order.number ?? '-'}\\n` +\n    `📌 Situação: ${statusTraduzido}\\n` +\n    `👤 Cliente: ${order.client ?? '-'}\\n` +\n    `🚗 Veículo: ${order.vehicle ?? '-'}\\n` +\n    `🛠️ Serviço: ${order.description ?? '-'}\\n` +\n    `📅 Criada em: ${dataFormatada}\\n`;\n}\n\nmessage += '━━━━━━━━━━━━━━━';\n\nreturn [\n  {\n    json: {\n      message,\n      total: orders.length,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3792,
+        752
+      ],
+      "id": "9b760534-a5f0-4ada-87bc-4925c92e3a25",
+      "name": "Converte saída das ordens"
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "message": "Posso atualizar o status desta ordem?",
+        "responseType": "approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Sim",
+            "disapproveLabel": "Não"
+          }
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        3344,
+        1040
+      ],
+      "id": "0d5fa549-4676-44c0-ab98-90af967333ae",
+      "name": "Chat7",
+      "webhookId": "b0d3545a-9ea9-495e-abe8-14e1aefca7dc"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Posso atualizar o status desta ordem?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3568,
+        1040
+      ],
+      "id": "def765dc-9994-4dd8-bd8d-88679ee6091f",
+      "name": "Salva mensagem enviada pelo bot8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3495c7f8-07cc-44ec-9782-56a97de57abe",
+              "leftValue": "={{ $('Chat7').item.json.data.approved }}",
+              "rightValue": "{{ true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3792,
+        1040
+      ],
+      "id": "41123647-e9e8-4f20-9ffa-f5d8cd74595d",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Sim"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4016,
+        944
+      ],
+      "id": "72aaa088-c5d1-4dc5-abf8-542c5ac57060",
+      "name": "Salva mensagem enviada pelo bot9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Não"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4016,
+        1136
+      ],
+      "id": "ef7a7d65-5766-4525-8ba7-de31fb0b8bcc",
+      "name": "Salva mensagem enviada pelo bot10"
+    },
+    {
+      "parameters": {
+        "message": "=Ordem #{{ $json.number }} atualizada com sucesso!",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        4464,
+        944
+      ],
+      "id": "67fc6ea3-2a4a-4435-a179-fbacfe7f204b",
+      "name": "Chat8",
+      "webhookId": "b373b739-0224-4ced-b022-e2b7fae3578a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Ordem #{{ $json.number }} atualizada com sucesso!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4688,
+        944
+      ],
+      "id": "8cc8bcc8-04de-46b3-a980-4243b7a2c809",
+      "name": "Salva mensagem enviada pelo bot11"
+    },
+    {
+      "parameters": {
+        "message": "Tudo bem, me informe novamente como posso ajudar com suas ordens de serviço?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1.1,
+      "position": [
+        4240,
+        1136
+      ],
+      "id": "208c4058-97d8-4a73-8a99-af66df027789",
+      "name": "Chat9",
+      "webhookId": "b373b739-0224-4ced-b022-e2b7fae3578a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Tudo bem, me informe novamente como posso ajudar com suas ordens de serviço?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4464,
+        1136
+      ],
+      "id": "c67c2928-e268-4e34-b296-e0204d1d9087",
+      "name": "Salva mensagem enviada pelo bot12"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('URL').first().json.url }}/api/order/{{ $('Converte resposta em JSON').item.json.content.payload.number }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('Converte resposta em JSON').item.json.content.payload.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4240,
+        944
+      ],
+      "id": "0a087621-9e3c-4db7-b1c5-232ee19d37d5",
+      "name": "Atualiza Ordem de Serviço"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}/api/auth/signin ",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cnpj",
+              "value": "41925661000105"
+            },
+            {
+              "name": "username",
+              "value": "amoreira"
+            },
+            {
+              "name": "password",
+              "value": "Alex15092901"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        752,
+        416
+      ],
+      "id": "20b287f1-5918-4dbf-a1c8-440eda0cde54",
+      "name": "Autenticação"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').item.json.url }}/api/contact",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('Edit Fields').item.json.phone }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        976,
+        416
+      ],
+      "id": "d6ab1bb0-fb6a-4aeb-853a-fb5533b42e60",
+      "name": "Busca contato",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ce18b87-489a-4bfc-a254-ef89f941c2ec",
+              "name": "name",
+              "value": "Alex Moreira",
+              "type": "string"
+            },
+            {
+              "id": "f13ab19a-706b-4db6-a042-aae55082fcde",
+              "name": "phone",
+              "value": "11912372570",
+              "type": "string"
+            },
+            {
+              "id": "ce66a66f-4f2f-4e73-9fe3-f8cf56abcf96",
+              "name": "content",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        304,
+        416
+      ],
+      "id": "0a7159b5-6611-4bd4-9088-b1df1ccc050a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        80,
+        416
+      ],
+      "id": "0c486c68-4d18-4056-bb8a-9b0f743e9566",
+      "name": "When chat message received",
+      "webhookId": "5598d1c3-232b-41d4-81aa-caa016138d00"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbd32109-3901-440a-9e5e-f47226e380f9",
+              "name": "url",
+              "value": "https://fa7c-201-95-84-202.ngrok-free.app",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        416
+      ],
+      "id": "2b1e687d-c580-4108-a5e4-14ddc1747744",
+      "name": "URL"
+    }
+  ],
+  "connections": {
+    "Chat1": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Busca mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat2": {
+      "main": [
+        []
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Chat1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca mensagens": {
+      "main": [
+        [
+          {
+            "node": "Verifica necessidade de nova conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica necessidade de nova conversa": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo usuario": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Converte resposta em JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte resposta em JSON": {
+      "main": [
+        [
+          {
+            "node": "Switch entre user e backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch entre user e backend": {
+      "main": [
+        [
+          {
+            "node": "Chat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch entre verbos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch entre verbos": {
+      "main": [
+        [
+          {
+            "node": "Chat3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Converte json em keys e values",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat3": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot3": {
+      "main": [
+        [
+          {
+            "node": "Criar Ordem de Serviço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot4": {
+      "main": [
+        [
+          {
+            "node": "Chat5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat4": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat5": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Ordem de Serviço": {
+      "main": [
+        [
+          {
+            "node": "Chat4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca ordens": {
+      "main": [
+        [
+          {
+            "node": "Converte saída das ordens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte json em keys e values": {
+      "main": [
+        [
+          {
+            "node": "Busca ordens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat6": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte saída das ordens": {
+      "main": [
+        [
+          {
+            "node": "Chat6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat7": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot8": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot9",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot9": {
+      "main": [
+        [
+          {
+            "node": "Atualiza Ordem de Serviço",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot10": {
+      "main": [
+        [
+          {
+            "node": "Chat9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat8": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat9": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza Ordem de Serviço": {
+      "main": [
+        [
+          {
+            "node": "Chat8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação": {
+      "main": [
+        [
+          {
+            "node": "Busca contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca contato": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL": {
+      "main": [
+        [
+          {
+            "node": "Autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d5e878044025fc38cb8f59bf25b07f8e3a82dab10bd85cbeb8b00f49522e6074"
+  }
+}

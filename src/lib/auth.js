@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
-import { username } from 'better-auth/plugins'
+import { username, bearer } from 'better-auth/plugins'
 import { prisma } from '@/lib/prisma'
 
 export const auth = betterAuth({
@@ -15,5 +15,6 @@ export const auth = betterAuth({
       minUsernameLength: 3,
       maxUsernameLength: 20,
     }),
+    bearer(),
   ],
 })

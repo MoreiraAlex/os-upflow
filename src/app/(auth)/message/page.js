@@ -116,23 +116,6 @@ export default function MessagesPage() {
 
             <ScrollArea className="flex-1 pr-2">
               <div className="space-y-3">
-                {messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={cn(
-                      'max-w-[75%] rounded-lg px-3 py-2 text-sm',
-                      msg.direction === 'out'
-                        ? 'ml-auto bg-primary text-primary-foreground'
-                        : 'bg-muted',
-                    )}
-                  >
-                    <p>{msg.content}</p>
-                    <span className="block text-[10px] opacity-70 mt-1">
-                      {new Date(msg.createdAt).toLocaleString('pt-BR')}
-                    </span>
-                  </div>
-                ))}
-
                 {loadingMessages
                   ? [...Array(6)].map((_, i) => (
                       <div key={i} className="flex">

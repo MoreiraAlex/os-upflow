@@ -18,10 +18,11 @@ export default function LoginPage() {
     const form = e.target
 
     const loginPromise = fetch('/api/auth/sign-in/username', {
+      // const loginPromise = fetch('/api/auth/signin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        cnpj: form.cnpj.value,
+        // cnpj: form.cnpj.value,
         username: form.username.value,
         password: form.password.value,
       }),
