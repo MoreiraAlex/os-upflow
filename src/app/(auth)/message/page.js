@@ -6,6 +6,24 @@ import { cn } from '@/lib/utils'
 import { ArrowLeft } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 
+function formatDayLabel(dateString) {
+  const date = new Date(dateString)
+  const today = new Date()
+  const yesterday = new Date()
+  yesterday.setDate(today.getDate() - 1)
+
+  const isSameDay = (a, b) => a.toDateString() === b.toDateString()
+
+  if (isSameDay(date, today)) return 'Hoje'
+  if (isSameDay(date, yesterday)) return 'Ontem'
+
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export default function MessagesPage() {
   const [contacts, setContacts] = useState([])
   const [selected, setSelected] = useState(null)
@@ -122,22 +140,47 @@ export default function MessagesPage() {
                         <Skeleton className="h-14 w-2/3 rounded-lg" />
                       </div>
                     ))
-                  : messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={cn(
-                          'max-w-[75%] rounded-lg px-3 py-2 text-sm',
-                          msg.direction === 'out'
-                            ? 'ml-auto bg-primary text-primary-foreground'
-                            : 'bg-muted',
-                        )}
-                      >
-                        <p>{msg.content}</p>
-                        <span className="block text-[10px] opacity-70 mt-1">
-                          {new Date(msg.createdAt).toLocaleString('pt-BR')}
-                        </span>
-                      </div>
-                    ))}
+                  : (() => {
+                      let lastDay = ''
+
+                      return messages.map((msg) => {
+                        const msgDate = new Date(msg.createdAt).toDateString()
+                        const showHeader = msgDate !== lastDay
+                        lastDay = msgDate
+
+                        return (
+                          <div key={msg.id}>
+                            {showHeader && (
+                              <div className="flex justify-center my-4">
+                                <span className="text-xs bg-muted px-3 py-1 rounded-full text-muted-foreground">
+                                  {formatDayLabel(msg.createdAt)}
+                                </span>
+                              </div>
+                            )}
+
+                            <div
+                              className={cn(
+                                'max-w-[75%] rounded-lg px-3 py-2 text-sm mb-1',
+                                msg.direction === 'out'
+                                  ? 'ml-auto bg-primary text-primary-foreground'
+                                  : 'bg-muted',
+                              )}
+                            >
+                              <p>{msg.content}</p>
+                              <span className="block text-[10px] opacity-70 mt-1">
+                                {new Date(msg.createdAt).toLocaleTimeString(
+                                  'pt-BR',
+                                  {
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  },
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      })
+                    })()}
                 <div ref={bottomRef} />
               </div>
             </ScrollArea>
