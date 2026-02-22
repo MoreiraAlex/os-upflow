@@ -3,45 +3,87 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from '@/components/ui/chart'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 
 export default function DashboardPage() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  const STATUS_LABEL = {
+    1: 'Aberta',
+    2: 'Em andamento',
+    3: 'Concluída',
+    4: 'Cancelada',
+  }
+
   const stats = [
-    { label: 'OS Abertas', value: 12 },
-    { label: 'OS em Andamento', value: 5 },
-    { label: 'OS Finalizadas (Hoje)', value: 8 },
-    { label: 'Total no Mês', value: 143 },
+    { label: 'Ordens Abertas', value: data?.stats?.openCount ?? 0 },
+    { label: 'Ordens em Andamento', value: data?.stats?.inProgressCount ?? 0 },
+    { label: 'Ordens Finalizadas (Hoje)', value: data?.stats?.closeCount ?? 0 },
+    { label: 'Ordens Canceladas (Mês)', value: data?.stats?.cancelCount ?? 0 },
+    { label: 'Total no Mês', value: data?.stats?.totalCount ?? 0 },
   ]
 
-  const recentOrders = [
-    {
-      number: 123,
-      client: 'João Silva',
-      vehicle: 'Gol 2015',
-      status: 'Aberta',
-      createdAt: '13/02/2026 09:42',
+  const chartData = data?.chart ?? []
+  const chartConfig = {
+    total: {
+      label: 'Ordens',
+      color: 'hsl(var(--primary))',
     },
-    {
-      number: 124,
-      client: 'Maria Souza',
-      vehicle: 'Onix 2020',
-      status: 'Em andamento',
-      createdAt: '13/02/2026 08:15',
-    },
-    {
-      number: 125,
-      client: 'Carlos Lima',
-      vehicle: 'HB20 2018',
-      status: 'Finalizada',
-      createdAt: '12/02/2026 17:30',
-    },
-  ]
+  }
+
+  const recentMessages =
+    data?.messages?.map((m) => ({
+      id: m.id,
+      contact: `${m.contact?.name} (${m.contact?.phone})`,
+      content: m.content,
+      createdAt: m.createdAt,
+    })) ?? []
+
+  const recentOrders =
+    data?.orders?.map((o) => ({
+      number: o.number ?? o.id,
+      client: o.contact?.name ?? 'Cliente',
+      vehicle: o.vehicle ?? '-',
+      status: o.status,
+      createdAt: new Date(o.createdAt).toLocaleString('pt-BR'),
+    })) ?? []
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch('/api/dashboard', {
+          credentials: 'include',
+        })
+        const json = await res.json()
+        setData(json)
+      } catch (err) {
+        console.error('dashboard error', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+  }, [])
+
+  if (loading) {
+    return <div className="p-6">Carregando dashboard...</div>
+  }
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ================= KPIs ================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {stats.map((item) => (
           <Card key={item.label}>
             <CardHeader className="pb-2">
@@ -56,17 +98,83 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Últimas OS */}
+      {/* ================= GRÁFICO ================= */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ordens de Serviço — Últimos 7 dias</CardTitle>
+        </CardHeader>
+
+        <CardContent className="h-[260px]">
+          <ChartContainer config={chartConfig} className="h-full w-full">
+            <LineChart data={chartData}>
+              <CartesianGrid vertical={false} />
+              <XAxis dataKey="day" tickLine={false} axisLine={false} />
+              <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+              <ChartTooltip content={<ChartTooltipContent />} />
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="var(--color-total)"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
+      {/* ================= MENSAGENS ================= */}
+      <Card>
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>Últimas Mensagens Recebidas</CardTitle>
+          <Link href="/message">
+            <Button variant="outline" size="sm">
+              Ver conversas
+            </Button>
+          </Link>
+        </CardHeader>
+
+        <CardContent>
+          <div className="space-y-3">
+            {recentMessages.map((msg) => (
+              <div
+                key={msg.id}
+                className="border rounded-lg p-3 hover:bg-muted/50 transition"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium">{msg.contact}</p>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(msg.createdAt).toLocaleString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+
+                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                  {msg.content}
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ================= ÚLTIMAS OS ================= */}
       <Card>
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Últimas Ordens de Serviço</CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            className="self-start sm:self-auto"
-          >
-            Ver todas
-          </Button>
+          <Link href="/order">
+            <Button
+              variant="outline"
+              size="sm"
+              className="self-start sm:self-auto"
+            >
+              Ver todas
+            </Button>
+          </Link>
         </CardHeader>
 
         <CardContent>
@@ -90,7 +198,9 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex justify-end sm:justify-start">
-                  <Badge variant="outline">{order.status}</Badge>
+                  <Badge variant="outline">
+                    {STATUS_LABEL[order.status] ?? 'Desconhecido'}
+                  </Badge>
                 </div>
               </div>
             ))}
