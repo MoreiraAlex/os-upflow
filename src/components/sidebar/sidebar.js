@@ -9,12 +9,28 @@ import {
   SidebarMenuButton,
   SidebarGroupLabel,
 } from '@/components/ui/sidebar'
-import { ClipboardCheck, Contact, HomeIcon, MessageSquare } from 'lucide-react'
+import {
+  ClipboardCheck,
+  Contact,
+  HomeIcon,
+  MessageSquare,
+  Shield,
+} from 'lucide-react'
 import Link from 'next/link'
 import { SidebarUserInfo } from './SidebarUserInfo'
 import { Logo } from '@/components/image/logo'
+import { headers } from 'next/headers'
 
-export function AppSidebar() {
+export async function AppSidebar() {
+  const incomingHeaders = headers()
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
+    headers: {
+      cookie: incomingHeaders.get('cookie') ?? '',
+    },
+    cache: 'no-store',
+  })
+  const user = await res.json()
+
   return (
     <Sidebar>
       <SidebarHeader className="pt-4">
@@ -51,28 +67,46 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>WhatsApp</SidebarGroupLabel>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/contact">
-                  <Contact className="w-4 h-4" />
-                  <span>Acessos</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+        {(user?.role === 'su' || user?.role === 'admin') && (
+          <SidebarGroup>
+            <SidebarGroupLabel>WhatsApp</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/contact">
+                    <Contact className="w-4 h-4" />
+                    <span>Acessos</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/message">
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Conversas</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/message">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Conversas</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {user?.role === 'su' && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administração</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/sudo">
+                    <Shield className="w-4 h-4" />
+                    <span>Painel do Sistema</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
