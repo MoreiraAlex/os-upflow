@@ -121,10 +121,8 @@ export async function GET() {
     },
   })
 
-  // agrupar por dia
   const chartMap = new Map()
 
-  // inicializa todos os dias com 0
   for (const day of days) {
     const label = day.toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -133,7 +131,6 @@ export async function GET() {
     chartMap.set(label, 0)
   }
 
-  // soma
   for (const order of ordersLast7Days) {
     const label = new Date(order.createdAt).toLocaleDateString('pt-BR', {
       day: '2-digit',

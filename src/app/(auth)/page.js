@@ -11,6 +11,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export default function DashboardPage() {
   const [data, setData] = useState(null)
@@ -34,7 +35,7 @@ export default function DashboardPage() {
   const chartData = data?.chart ?? []
   const chartConfig = {
     total: {
-      label: 'Ordens',
+      label: 'Ordem',
       color: 'hsl(var(--primary))',
     },
   }
@@ -74,95 +75,63 @@ export default function DashboardPage() {
     load()
   }, [])
 
-  if (loading) {
-    return <div className="p-6">Carregando dashboard...</div>
-  }
-
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
 
-      {/* ================= KPIs ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {stats.map((item) => (
-          <Card key={item.label}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-muted-foreground">
-                {item.label}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <span className="text-2xl font-bold">{item.value}</span>
-            </CardContent>
-          </Card>
-        ))}
+        {loading
+          ? [...Array(5)].map((_, i) => (
+              <div key={i} className="flex">
+                <Skeleton className="h-24 w-full" />
+              </div>
+            ))
+          : stats.map((item) => (
+              <Card key={item.label}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm text-muted-foreground">
+                    {item.label}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <span className="text-2xl font-bold">{item.value}</span>
+                </CardContent>
+              </Card>
+            ))}
       </div>
 
-      {/* ================= GRÁFICO ================= */}
       <Card>
         <CardHeader>
-          <CardTitle>Ordens de Serviço — Últimos 7 dias</CardTitle>
+          <CardTitle>Ordens de Serviço — Últimos dias</CardTitle>
         </CardHeader>
 
         <CardContent className="h-[260px]">
-          <ChartContainer config={chartConfig} className="h-full w-full">
-            <LineChart data={chartData}>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="day" tickLine={false} axisLine={false} />
-              <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Line
-                type="monotone"
-                dataKey="total"
-                stroke="var(--color-total)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          </ChartContainer>
+          {loading ? (
+            <Skeleton className="h-full w-full" />
+          ) : (
+            <ChartContainer config={chartConfig} className="h-full w-full">
+              <LineChart data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="day" tickLine={false} axisLine={false} />
+                <YAxis
+                  allowDecimals={false}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  stroke="var(--color-total)"
+                  strokeWidth={2}
+                  dot={true}
+                />
+              </LineChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
 
-      {/* ================= MENSAGENS ================= */}
-      <Card>
-        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>Últimas Mensagens Recebidas</CardTitle>
-          <Link href="/message">
-            <Button variant="outline" size="sm">
-              Ver conversas
-            </Button>
-          </Link>
-        </CardHeader>
-
-        <CardContent>
-          <div className="space-y-3">
-            {recentMessages.map((msg) => (
-              <div
-                key={msg.id}
-                className="border rounded-lg p-3 hover:bg-muted/50 transition"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium">{msg.contact}</p>
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(msg.createdAt).toLocaleString('pt-BR', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-
-                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                  {msg.content}
-                </p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ================= ÚLTIMAS OS ================= */}
       <Card>
         <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle>Últimas Ordens de Serviço</CardTitle>
@@ -179,31 +148,78 @@ export default function DashboardPage() {
 
         <CardContent>
           <div className="space-y-3">
-            {recentOrders.map((order) => (
-              <div
-                key={order.number}
-                className="
+            {loading
+              ? [...Array(5)].map((_, i) => (
+                  <div key={i} className="flex">
+                    <Skeleton className="h-14 w-full" />
+                  </div>
+                ))
+              : recentOrders.map((order) => (
+                  <div
+                    key={order.number}
+                    className="
                   flex flex-col gap-2
                   sm:flex-row sm:items-center sm:justify-between
                   border rounded-lg p-3
                 "
-              >
-                <div>
-                  <p className="font-medium">
-                    OS #{order.number} — {order.client}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {order.vehicle} • {order.createdAt}
-                  </p>
-                </div>
+                  >
+                    <div>
+                      <p className="font-medium">
+                        OS #{order.number} — {order.client}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.vehicle} • {order.createdAt}
+                      </p>
+                    </div>
 
-                <div className="flex justify-end sm:justify-start">
-                  <Badge variant="outline">
-                    {STATUS_LABEL[order.status] ?? 'Desconhecido'}
-                  </Badge>
-                </div>
-              </div>
-            ))}
+                    <div className="flex justify-end sm:justify-start">
+                      <Badge variant="outline">
+                        {STATUS_LABEL[order.status] ?? 'Desconhecido'}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardTitle>Últimas Mensagens Recebidas</CardTitle>
+          <Link href="/message">
+            <Button variant="outline" size="sm">
+              Ver conversas
+            </Button>
+          </Link>
+        </CardHeader>
+
+        <CardContent>
+          <div className="space-y-3">
+            {loading
+              ? [...Array(5)].map((_, i) => (
+                  <div key={i} className="flex">
+                    <Skeleton className="h-14 w-full" />
+                  </div>
+                ))
+              : recentMessages.map((msg) => (
+                  <div key={msg.id} className="border rounded-lg p-3 ">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium">{msg.contact}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(msg.createdAt).toLocaleString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                      {msg.content}
+                    </p>
+                  </div>
+                ))}
           </div>
         </CardContent>
       </Card>
