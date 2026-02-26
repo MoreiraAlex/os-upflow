@@ -14,12 +14,13 @@ export default async function SignupPage({ children, params }) {
     },
   )
 
-  console.log(res)
-
   if (!res.ok) return notFound()
   const invite = await res.json()
 
-  if (!invite || invite.used || invite.expiresAt < new Date()) {
+  const now = new Date()
+  const expiresAt = new Date(invite.expiresAt)
+
+  if (!invite || invite.used || expiresAt < now) {
     notFound()
   }
 

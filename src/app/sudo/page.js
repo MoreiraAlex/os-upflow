@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function SudoPage() {
   const [invites, setInvites] = useState([])
@@ -122,7 +123,7 @@ export default function SudoPage() {
       })
       .finally(() => {
         setCreatingUser(false)
-        // e.currentTarget.reset()
+        e.target.reset()
       })
 
     toast.promise(promise, {
@@ -170,7 +171,7 @@ export default function SudoPage() {
         </CardHeader>
 
         <CardContent>
-          <div className="space-y-3">
+          <ScrollArea className="h-96">
             {loading
               ? [...Array(5)].map((_, i) => (
                   <Skeleton key={i} className="h-14 w-full" />
@@ -179,13 +180,18 @@ export default function SudoPage() {
                   const status = getStatus(invite)
 
                   return (
-                    <Link
+                    <div
                       key={invite.id}
-                      className="border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-muted/50 transition"
+                      className="border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 "
                       href={`${process.env.NEXT_PUBLIC_BASE_URL}/signup/${invite.token}`}
                       target="_blank"
                     >
-                      <div className="min-w-0">
+                      <Link
+                        key={invite.id}
+                        className="min-w-0 p-2 rounded-lg hover:bg-muted/50 transition"
+                        href={`${process.env.NEXT_PUBLIC_BASE_URL}/signup/${invite.token}`}
+                        target="_blank"
+                      >
                         <p className="font-mono text-sm break-all">
                           {invite.token}
                         </p>
@@ -193,7 +199,7 @@ export default function SudoPage() {
                           Expira em:{' '}
                           {new Date(invite.expiresAt).toLocaleString('pt-BR')}
                         </p>
-                      </div>
+                      </Link>
 
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">
@@ -219,10 +225,10 @@ export default function SudoPage() {
                           </Tooltip>
                         </TooltipProvider>
                       </div>
-                    </Link>
+                    </div>
                   )
                 })}
-          </div>
+          </ScrollArea>
         </CardContent>
       </Card>
 
@@ -232,7 +238,11 @@ export default function SudoPage() {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="mt-2 space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="mt-2 space-y-4"
+            autoComplete="false"
+          >
             <div className="space-y-2">
               <Label htmlFor="cnpj">CNPJ</Label>
               <Input id="cnpj" name="cnpj" required />
