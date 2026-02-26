@@ -13,7 +13,7 @@ export async function GET() {
   }
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { workshopId: true },
+    select: { workshopId: true, role: true },
   })
 
   if (!user?.workshopId) {
@@ -156,5 +156,6 @@ export async function GET() {
     chart,
     messages,
     orders,
+    user,
   })
 }

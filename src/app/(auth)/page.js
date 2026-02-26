@@ -77,7 +77,7 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      <h1 className="text-xl sm:text-2xl font-semibold">Dashboard</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold">Visão Geral</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {loading
@@ -148,60 +148,68 @@ export default function DashboardPage() {
 
         <CardContent>
           <div className="space-y-3">
-            {loading
-              ? [...Array(5)].map((_, i) => (
-                  <div key={i} className="flex">
-                    <Skeleton className="h-14 w-full" />
+            {loading ? (
+              [...Array(5)].map((_, i) => (
+                <div key={i} className="flex">
+                  <Skeleton className="h-14 w-full" />
+                </div>
+              ))
+            ) : recentOrders.length === 0 ? (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                Nenhuma ordem encontrada.
+              </div>
+            ) : (
+              recentOrders.map((order) => (
+                <div
+                  key={order.number}
+                  className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border rounded-lg p-3"
+                >
+                  <div>
+                    <p className="font-medium">
+                      OS #{order.number} — {order.client}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {order.vehicle} • {order.createdAt}
+                    </p>
                   </div>
-                ))
-              : recentOrders.map((order) => (
-                  <div
-                    key={order.number}
-                    className="
-                  flex flex-col gap-2
-                  sm:flex-row sm:items-center sm:justify-between
-                  border rounded-lg p-3
-                "
-                  >
-                    <div>
-                      <p className="font-medium">
-                        OS #{order.number} — {order.client}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {order.vehicle} • {order.createdAt}
-                      </p>
-                    </div>
 
-                    <div className="flex justify-end sm:justify-start">
-                      <Badge variant="outline">
-                        {STATUS_LABEL[order.status] ?? 'Desconhecido'}
-                      </Badge>
-                    </div>
+                  <div className="flex justify-end sm:justify-start">
+                    <Badge variant="outline">
+                      {STATUS_LABEL[order.status] ?? 'Desconhecido'}
+                    </Badge>
                   </div>
-                ))}
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle>Últimas Mensagens Recebidas</CardTitle>
-          <Link href="/message">
-            <Button variant="outline" size="sm">
-              Ver conversas
-            </Button>
-          </Link>
-        </CardHeader>
+      {(data?.user?.role === 'su' || data?.user?.role === 'admin') && (
+        <Card>
+          <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <CardTitle>Últimas Mensagens Recebidas</CardTitle>
+            <Link href="/message">
+              <Button variant="outline" size="sm">
+                Ver conversas
+              </Button>
+            </Link>
+          </CardHeader>
 
-        <CardContent>
-          <div className="space-y-3">
-            {loading
-              ? [...Array(5)].map((_, i) => (
+          <CardContent>
+            <div className="space-y-3">
+              {loading ? (
+                [...Array(5)].map((_, i) => (
                   <div key={i} className="flex">
                     <Skeleton className="h-14 w-full" />
                   </div>
                 ))
-              : recentMessages.map((msg) => (
+              ) : recentMessages.length === 0 ? (
+                <div className="text-center py-8 text-sm text-muted-foreground">
+                  Nenhuma mensagem recebida.
+                </div>
+              ) : (
+                recentMessages.map((msg) => (
                   <div key={msg.id} className="border rounded-lg p-3 ">
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-medium">{msg.contact}</p>
@@ -219,10 +227,12 @@ export default function DashboardPage() {
                       {msg.content}
                     </p>
                   </div>
-                ))}
-          </div>
-        </CardContent>
-      </Card>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
