@@ -123,7 +123,7 @@ export default function SudoPage() {
       })
       .finally(() => {
         setCreatingUser(false)
-        e.target.reset()
+        // e.target.reset()
       })
 
     toast.promise(promise, {

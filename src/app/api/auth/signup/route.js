@@ -15,52 +15,59 @@ export async function POST(req) {
       where: { token },
     })
 
-    if (!invite || invite.used || invite.expiresAt < new Date()) {
+    const now = new Date()
+    const expiresAt = new Date(invite.expiresAt)
+
+    if (!invite || invite.used || expiresAt < now) {
       return NextResponse.json(
         { error: 'Convite inválido ou expirado' },
         { status: 400 },
       )
     }
 
-    const result = await prisma.$transaction(async (tx) => {
-      const workshop = await tx.workshop.create({
-        data: {
-          cnpj,
-          name: workshopName,
-        },
-      })
-
-      const signUp = await auth.api.signUpEmail({
-        body: {
-          email,
-          password,
-          username,
-          name: username,
-          displayUsername: username,
-        },
-      })
-
-      if (!signUp?.user?.id) {
-        throw new Error('Falha ao criar usuário')
-      }
-
-      await tx.user.update({
-        where: { id: signUp.user.id },
-        data: {
-          workshopId: workshop.id,
-          role: 'admin',
-        },
-      })
-
-      await tx.invite.update({
-        where: { token },
-        data: { used: true },
-      })
-
-      return signUp.user
+    const workshopExists = await prisma.workshop.findUnique({
+      where: { cnpj },
     })
 
-    return NextResponse.json(result, { status: 201 })
+    if (workshopExists) {
+      throw new Error('CNPJ já existe')
+    }
+
+    const workshop = await prisma.workshop.create({
+      data: {
+        cnpj,
+        name: workshopName,
+      },
+    })
+
+    const signUp = await auth.api.signUpEmail({
+      body: {
+        email,
+        password,
+        username,
+        name: username,
+        displayUsername: username,
+      },
+    })
+
+    if (!signUp?.user?.id) {
+      throw new Error('Falha ao criar usuário')
+    }
+
+    await prisma.user.update({
+      where: { id: signUp.user.id },
+      data: {
+        workshopId: workshop.id,
+        role: 'admin',
+      },
+    })
+
+    await prisma.invite.update({
+      where: { token },
+      data: { used: true },
+    })
+
+    return NextResponse.json(signUp.user, { status: 201 })
   } catch (error) {
     console.error('SIGNUP_ERROR', error)
 

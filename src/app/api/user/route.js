@@ -61,18 +61,36 @@ export async function POST(req) {
     const { email, password, username, cnpj, role } = body
 
     const workshop = await prisma.workshop.findUnique({
+      where: { cnpj },
+    })
+
+    if (!workshop) {
+      return NextResponse.json(
+        { error: 'CNPJ não encontrado' },
+        { status: 400 },
+      )
+    }
+
+    const userExists = await prisma.user.findUnique({
       where: {
-        cnpj,
+        workshopId_username: {
+          workshopId: workshop.id,
+          username,
+        },
       },
     })
 
+    if (userExists) {
+      return NextResponse.json({ error: 'Usuário já existe' }, { status: 409 })
+    }
+
     const signUp = await auth.api.signUpEmail({
       body: {
-        email,
         password,
-        username,
-        name: username,
-        displayUsername: username,
+        email,
+        username: 'temp',
+        name: 'temp',
+        displayUsername: 'temp',
       },
     })
 
@@ -84,6 +102,9 @@ export async function POST(req) {
       where: { id: signUp.user.id },
       data: {
         workshopId: workshop.id,
+        username,
+        name: username,
+        displayUsername: username,
         role,
       },
     })

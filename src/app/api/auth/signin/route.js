@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { headers } from 'next/headers'
 
 export async function POST(req) {
   try {
@@ -41,6 +42,7 @@ export async function POST(req) {
         email: user.email,
         password,
       },
+      headers: await headers(),
     })
 
     if (!signIn?.user) {
@@ -50,7 +52,10 @@ export async function POST(req) {
       )
     }
 
-    return NextResponse.json(signIn, { status: 201 })
+    return NextResponse.json(signIn, {
+      status: 200,
+      headers: signIn.headers,
+    })
   } catch (error) {
     console.error('LOGIN_ERROR', error)
 
