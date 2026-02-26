@@ -86,3 +86,13 @@ export function validarCNPJ(value) {
 
   return resultado === Number(digitos.charAt(1))
 }
+
+export function formatPhone(value) {
+  const v = value.replace(/\D/g, '').slice(0, 11)
+
+  if (v.length <= 10) {
+    return v.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2')
+  }
+
+  return v.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2')
+}

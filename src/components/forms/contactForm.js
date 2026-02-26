@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { formatPhone } from '@/lib/utils'
 
 export function ContactForm({ defaultValues, onSubmit, onCancel }) {
   const form = useForm({
@@ -43,7 +44,10 @@ export function ContactForm({ defaultValues, onSubmit, onCancel }) {
             <FormItem>
               <FormLabel>Número</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input
+                  {...field}
+                  onChange={(e) => field.onChange(formatPhone(e.target.value))}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
