@@ -5,12 +5,23 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { formatarCNPJ, validarCNPJ } from '@/lib/utils'
+import { useState } from 'react'
 
 export default function SignupPage() {
   const { token } = useParams()
   const router = useRouter()
-  let submitting = false
 
+  const [cnpj, setCnpj] = useState('')
+  const [cnpjError, setCnpjError] = useState('')
+
+  function handleCnpjChange(e) {
+    const formatted = formatarCNPJ(e.target.value)
+    setCnpj(formatted)
+    setCnpjError('')
+  }
+
+  let submitting = false
   async function handleSubmit(e) {
     e.preventDefault()
     if (submitting) return
@@ -18,12 +29,20 @@ export default function SignupPage() {
 
     const form = e.target
 
+    const cnpjRaw = String(form.cnpj.value || '')
+    const cnpjLimpo = cnpjRaw.replace(/\D/g, '')
+
+    if (!validarCNPJ(cnpjRaw)) {
+      setCnpjError('CNPJ inválido')
+      submitting = false
+      return
+    }
+
     const signupPromise = fetch('/api/auth/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        cnpj: form.cnpj.value,
-        workshopName: form.workshop.value,
+        cnpj: cnpjLimpo,
         username: form.username.value,
         email: form.email.value,
         password: form.password.value,
@@ -62,13 +81,15 @@ export default function SignupPage() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="workshop">Empresa</Label>
-              <Input id="workshop" name="workshop" required />
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="cnpj">CNPJ</Label>
-              <Input id="cnpj" name="cnpj" required />
+              <Input
+                id="cnpj"
+                name="cnpj"
+                value={cnpj}
+                onChange={handleCnpjChange}
+                required
+              />
+              {cnpjError && <p className="text-sm text-red-500">{cnpjError}</p>}
             </div>
 
             <div className="space-y-2">

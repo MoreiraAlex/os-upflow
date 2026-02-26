@@ -48,8 +48,8 @@ export async function SidebarUserInfo() {
               </Badge>
             )}
           </span>
-          <span className="text-gray-500">
-            {user.workshop.name || 'Oficina'}
+          <span className="text-gray-500 text-start">
+            {user.workshop.fantasyName || user.workshop.name || 'Oficina'}
           </span>
         </div>
       </DropdownMenuTrigger>

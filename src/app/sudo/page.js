@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { formatarCNPJ, validarCNPJ } from '@/lib/utils'
 
 export default function SudoPage() {
   const [invites, setInvites] = useState([])
@@ -25,6 +26,8 @@ export default function SudoPage() {
   const [suffix, setSuffix] = useState('')
   const [creatingUser, setCreatingUser] = useState(false)
   const [role, setRole] = useState('admin')
+  const [cnpj, setCnpj] = useState('')
+  const [cnpjError, setCnpjError] = useState('')
 
   async function loadInvites() {
     setLoading(true)
@@ -97,19 +100,35 @@ export default function SudoPage() {
     return 'active'
   }
 
+  function handleCnpjChange(e) {
+    const formatted = formatarCNPJ(e.target.value)
+    setCnpj(formatted)
+    setCnpjError('')
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
 
     if (creatingUser) return
     setCreatingUser(true)
 
-    const formData = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const formData = new FormData(form)
+
+    const cnpjRaw = String(formData.get('cnpj') || '')
+    const cnpjLimpo = cnpjRaw.replace(/\D/g, '')
+
+    if (!validarCNPJ(cnpjRaw)) {
+      setCnpjError('CNPJ inválido')
+      setCreatingUser(false)
+      return
+    }
 
     const payload = {
-      cnpj: formData.get('cnpj'),
-      username: formData.get('username'),
-      email: formData.get('email'),
-      password: formData.get('password'),
+      cnpj: cnpjLimpo,
+      username: String(formData.get('username') || ''),
+      email: String(formData.get('email') || ''),
+      password: String(formData.get('password') || ''),
       role,
     }
 
@@ -123,7 +142,8 @@ export default function SudoPage() {
       })
       .finally(() => {
         setCreatingUser(false)
-        // e.target.reset()
+        e.target.reset()
+        setCnpj('')
       })
 
     toast.promise(promise, {
@@ -245,7 +265,14 @@ export default function SudoPage() {
           >
             <div className="space-y-2">
               <Label htmlFor="cnpj">CNPJ</Label>
-              <Input id="cnpj" name="cnpj" required />
+              <Input
+                id="cnpj"
+                name="cnpj"
+                value={cnpj}
+                onChange={handleCnpjChange}
+                required
+              />
+              {cnpjError && <p className="text-sm text-red-500">{cnpjError}</p>}
             </div>
 
             <div className="space-y-2">

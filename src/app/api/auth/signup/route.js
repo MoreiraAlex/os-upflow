@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { buscarCNPJ } from '@/lib/utils'
 
 export async function POST(req) {
   try {
     const body = await req.json()
-    const { email, password, username, cnpj, workshopName, token } = body
+    const { email, password, username, cnpj, token } = body
 
     if (!token) {
       return NextResponse.json({ error: 'Token obrigatório' }, { status: 400 })
@@ -16,9 +17,9 @@ export async function POST(req) {
     })
 
     const now = new Date()
-    const expiresAt = new Date(invite.expiresAt)
+    const expiresAt = new Date(invite?.expiresAt)
 
-    if (!invite || invite.used || expiresAt < now) {
+    if (!invite || invite?.used || expiresAt < now) {
       return NextResponse.json(
         { error: 'Convite inválido ou expirado' },
         { status: 400 },
@@ -33,10 +34,29 @@ export async function POST(req) {
       throw new Error('CNPJ já existe')
     }
 
+    const cnpjData = await buscarCNPJ(cnpj)
+    console.log(cnpjData)
+
+    if (!cnpjData) {
+      return NextResponse.json(
+        { error: 'CNPJ não encontrado na Receita' },
+        { status: 400 },
+      )
+    }
+
     const workshop = await prisma.workshop.create({
       data: {
         cnpj,
-        name: workshopName,
+        name: cnpjData.name,
+        fantasyName: cnpjData.fantasyName,
+        email: cnpjData.email,
+        phone: cnpjData.phone,
+        address: cnpjData.address,
+        number: cnpjData.number,
+        district: cnpjData.district,
+        city: cnpjData.city,
+        state: cnpjData.state,
+        zipCode: cnpjData.zipCode,
       },
     })
 

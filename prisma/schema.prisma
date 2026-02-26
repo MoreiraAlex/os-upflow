@@ -40,17 +40,27 @@ model Message {
 
 
 model Workshop {
-  id        String   @id @default(cuid()) @map("_id")
-  cnpj      String   @unique
-  name      String   
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid()) @map("_id")
+  cnpj        String   @unique
+  name        String
+  fantasyName String?
+  email       String?
+  phone       String?
+  address     String?
+  number      String?
+  district    String?
+  city        String?
+  state       String?
+  zipCode     String?  
+  createdAt   DateTime @default(now())
 
-  contacts  Contact[]
-  users     User[]
-  orders    ServiceOrder[]
+  contacts    Contact[]
+  users       User[]
+  orders      ServiceOrder[]
 
   @@map("workshop")
 }
+
 
 
 model User {
