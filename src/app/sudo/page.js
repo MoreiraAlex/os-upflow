@@ -138,7 +138,10 @@ export default function SudoPage() {
       body: JSON.stringify(payload),
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error()
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(data?.error)
+
+        return data
       })
       .finally(() => {
         setCreatingUser(false)
@@ -149,7 +152,9 @@ export default function SudoPage() {
     toast.promise(promise, {
       loading: 'Criando usuário...',
       success: 'Usuário criado!',
-      error: 'Erro ao criar usuário',
+      error: (e) => {
+        return e?.message || 'Erro ao criar usuário'
+      },
     })
   }
 

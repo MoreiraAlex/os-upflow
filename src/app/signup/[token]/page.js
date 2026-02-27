@@ -48,9 +48,11 @@ export default function SignupPage() {
         password: form.password.value,
         token,
       }),
-    }).then((res) => {
-      if (!res.ok) throw new Error()
-      return res.json()
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error)
+
+      return data
     })
 
     toast.promise(signupPromise, {
@@ -61,9 +63,9 @@ export default function SignupPage() {
         submitting = false
         return 'Conta criada com sucesso'
       },
-      error: () => {
+      error: (e) => {
         submitting = false
-        return 'Erro ao criar conta'
+        return e?.message || 'Erro ao criar conta'
       },
     })
   }

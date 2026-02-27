@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
+import { appError, isAppError, mapBetterAuthError } from '@/lib/errors'
 
 export async function GET() {
   try {
@@ -39,13 +40,15 @@ export async function GET() {
 }
 
 export async function POST(req) {
+  let createdUserId = ''
+
   try {
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      throw appError('Não autorizado', 401)
     }
 
     const user = await prisma.user.findUnique({
@@ -54,7 +57,7 @@ export async function POST(req) {
     })
 
     if (user?.role !== 'su') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      throw appError('Acesso negado', 403)
     }
 
     const body = await req.json()
@@ -65,10 +68,7 @@ export async function POST(req) {
     })
 
     if (!workshop) {
-      return NextResponse.json(
-        { error: 'CNPJ não encontrado' },
-        { status: 400 },
-      )
+      throw appError('CNPJ não encontrado', 400)
     }
 
     const userExists = await prisma.user.findUnique({
@@ -81,22 +81,30 @@ export async function POST(req) {
     })
 
     if (userExists) {
-      return NextResponse.json({ error: 'Usuário já existe' }, { status: 409 })
+      throw appError('Nome de usuário já está em uso', 409)
     }
 
-    const signUp = await auth.api.signUpEmail({
-      body: {
-        password,
-        email,
-        username: 'temp',
-        name: 'temp',
-        displayUsername: 'temp',
-      },
-    })
+    let signUp
+    try {
+      signUp = await auth.api.signUpEmail({
+        body: {
+          email,
+          password,
+          username: 'temp',
+          name: 'temp',
+          displayUsername: 'temp',
+        },
+      })
+    } catch (err) {
+      const mapped = mapBetterAuthError(err)
+      if (mapped) throw mapped
+      throw err
+    }
 
     if (!signUp?.user?.id) {
-      throw new Error('Falha ao criar usuário')
+      throw appError('Falha ao criar usuário', 500)
     }
+    createdUserId = signUp.user.id
 
     await prisma.user.update({
       where: { id: signUp.user.id },
@@ -114,8 +122,26 @@ export async function POST(req) {
   } catch (error) {
     console.error('SIGNUP_ERROR', error)
 
+    if (createdUserId) {
+      try {
+        await auth.api.deleteUser({
+          body: { userId: createdUserId },
+        })
+        console.log('Compensação: usuário removido')
+      } catch (cleanupError) {
+        console.error('CLEANUP_ERROR', cleanupError)
+      }
+    }
+
+    if (isAppError(error)) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode },
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Falha ao criar usuário' },
       { status: 500 },
     )
   }
