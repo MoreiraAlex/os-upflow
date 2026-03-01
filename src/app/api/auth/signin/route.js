@@ -25,7 +25,7 @@ export async function POST(req) {
       where: {
         workshopId_username: {
           workshopId: workshop.id,
-          username,
+          username: username.toLowerCase(),
         },
       },
     })

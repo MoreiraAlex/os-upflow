@@ -83,7 +83,7 @@ export async function POST(req) {
         where: { id: signUp.user.id },
         data: {
           workshopId: workshop.id,
-          username,
+          username: username.toLowerCase(),
           name: username,
           displayUsername: username,
           role: 'admin',
