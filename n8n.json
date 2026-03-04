@@ -1,0 +1,1908 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0927dece-d6d2-46b4-b925-1a43ea237ffe",
+              "leftValue": "={{ $json.data }}",
+              "rightValue": "={{ 0 }}",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -896,
+        340
+      ],
+      "id": "b2c1f3f0-be3f-431f-8f69-ab86835a6575",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cbef9e3c-0e9c-451c-8b0a-011bc36c1b43",
+              "leftValue": "={{ $('Verifica necessidade de nova conversa').item.json.startNewConversation }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        436
+      ],
+      "id": "a3029736-e3e1-46cd-a500-f798fe60b67a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').item.json.url }}/api/message  ",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $json.data[0].id }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -224,
+        436
+      ],
+      "id": "c1c1cda4-0f59-4388-be31-746e3d00fb2c",
+      "name": "Busca mensagens",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items.length) {\n  return [{ json: { startNewConversation: true } }];\n}\n\nitems.sort((a, b) =>\n  new Date(a.json.createdAt) - new Date(b.json.createdAt)\n);\n\nconst lastItem = items[items.length - 1];\n\nif (!lastItem.json.createdAt) {\n  return [{ json: { startNewConversation: true } }];\n}\n\nconst lastDate = new Date(lastItem.json.createdAt);\nconst now = new Date();\n\nconst diffMs = now - lastDate;\n\nconst startNewConversation = diffMs > 4 * 60 * 60 * 1000;\n\nreturn [\n  {\n    json: {\n      startNewConversation,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        436
+      ],
+      "id": "90855b62-31c0-4335-b337-a830411fb7f2",
+      "name": "Verifica necessidade de nova conversa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -448,
+        436
+      ],
+      "id": "5443ef7e-6417-4057-96f9-32939639d348",
+      "name": "Salva mensagem enviada pelo usuario"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Olá!\nAqui é o assistente do OS Upflow.\nSeu número está vinculado à empresa {{ $('Busca contato').item.json.workshop }}.\n\nComo posso ajudar com suas ordens de serviço?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        288
+      ],
+      "id": "17aa732f-e8b4-40b1-a035-65849857a7e3",
+      "name": "Salva mensagem enviada pelo bot"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=Você é o assistente conversacional do OS Upflow, um sistema de ordens de serviço para oficinas e autocenters operado exclusivamente via WhatsApp pela oficina.\nAs mensagens podem ser incompletas, não lineares ou misturar intenções. Identifique a intenção principal e use sempre o contexto recente antes de pedir novos dados. Intenções reconhecidas: criar OS, consultar OS, atualizar OS, responder dúvidas operacionais simples.\nSe houver ambiguidade entre múltiplas OS, peça somente um identificador (ex.: placa ou número da OS). Nunca crie uma nova OS automaticamente se houver uma claramente relacionada. Você não fala com clientes finais, não trata financeiro, estoque, orçamento ou usuários, e não explica funcionamento interno do sistema.\nIMPORTANTE: Retorne exclusivamente JSON puro. Nunca use markdown, blocos de código ou qualquer texto fora do JSON:\n{\"target\": \"user\" | \"backend\", \"content\": {}}\nUse \"target\": \"user\" para responder ou pedir esclarecimento com content: <mensagem>.\nUse \"target\": \"backend\" quando houver ação clara, com content:\n{\"action\": \"create\" | \"read\" | \"update\", \"payload\": {}}\ncreate: payload = {...campos}\nread: payload = {...campos de busca}\nupdate: payload = {\"number\":<numero_os>,\"data\":{...campos}}}}\nEstrutura da OS:\nnumber\nstatus - 1: Aberta |  2: Em andamento |  3: Concluída |  4: Cancelada\nclient\nvehicle\ndescription\nEstrutura mínima da OS:\nclient\nvehicle\ndescription\nEm caso de dúvida, responda com \"target\": \"user\" pedindo esclarecimento curto e natural."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        592
+      ],
+      "id": "fa3dd609-ffee-450d-aacc-fdf91af3388a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        456,
+        808
+      ],
+      "id": "1c865c70-1ded-44b5-8910-22079abce860",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Ip9BQDnNqh1LbnKR",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        584,
+        808
+      ],
+      "id": "6991e6a9-e46c-4fb6-841b-989b6af0033e",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca mensagens').first().json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Switch entre user e backend').item.json.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1472,
+        480
+      ],
+      "id": "3700858f-1001-40e9-8e3c-ae4d65d24ab4",
+      "name": "Salva mensagem enviada pelo bot1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  const parsed = JSON.parse(item.json.output);\n\n  item.json = {\n    ...item.json,\n    ...parsed,\n  };\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        584
+      ],
+      "id": "cd229ce2-92fa-4d97-90b2-87bcec161152",
+      "name": "Converte resposta em JSON"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.target }}",
+                    "rightValue": "user",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "66400595-2f83-43a0-b269-992458e7965c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "819697a3-ed9e-43ca-9b15-8a7811f975ef",
+                    "leftValue": "={{ $json.target }}",
+                    "rightValue": "backend",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        584
+      ],
+      "id": "e274bf20-34c6-4f05-9f35-4b8190775240",
+      "name": "Switch entre user e backend"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Converte resposta em JSON').item.json.content.action }}",
+                    "rightValue": "create",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "66400595-2f83-43a0-b269-992458e7965c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a4630243-cdf5-425e-8032-e282769316e4",
+                    "leftValue": "={{ $('Converte resposta em JSON').item.json.content.action }}",
+                    "rightValue": "read",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b1ca722c-de8a-4907-83ef-f99be3f80c50",
+                    "leftValue": "={{ $('Converte resposta em JSON').item.json.content.action }}",
+                    "rightValue": "update",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        672
+      ],
+      "id": "491297bd-5040-46bf-9968-f3206beb96fb",
+      "name": "Switch entre verbos"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').first().json.url }}/api/order",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "={{ $json.key }}",
+              "value": "={{ $json.value }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1920,
+        688
+      ],
+      "id": "099d1902-2ceb-452f-b393-f4d3d3c70da3",
+      "name": "Busca ordens"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  const payload = item.json.content?.payload || {};\n\n  if (!payload || Object.keys(payload).length === 0) {\n    output.push({\n      json: {\n        key: \"status\",\n        value: \"1\",\n      },\n    });\n    continue;\n  }\n\n  for (const [key, value] of Object.entries(payload)) {\n    output.push({\n      json: {\n        key,\n        value,\n      },\n    });\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        688
+      ],
+      "id": "5c4c5c02-d1af-44c8-97fd-00aea0b12c35",
+      "name": "Converte json em keys e values"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Converte saída das ordens').item.json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2592,
+        688
+      ],
+      "id": "5d08530c-dbd1-4782-a80f-49ec30f35bac",
+      "name": "Salva mensagem enviada pelo bot7"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst STATUS_LABEL = {\n  1: 'Aberta',\n  2: 'Em andamento',\n  3: 'Concluída',\n  4: 'Cancelada',\n};\n\nfunction formatDate(dateString) {\n  if (!dateString) return '-';\n\n  const date = new Date(dateString);\n\n  if (isNaN(date)) return dateString;\n\n  return date.toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit',\n  });\n}\n\nconst orders = items[0].json.data || [];\n\nif (!orders.length) {\n  return [\n    {\n      json: {\n        message:\n          'Não encontrei nenhuma ordem de serviço. Como posso te ajudar?',\n      },\n    },\n  ];\n}\n\nlet message = '*Suas ordens de serviço*\\n\\n';\n\nfor (const order of orders) {\n  const statusTraduzido =\n    STATUS_LABEL[order.status] ?? order.status ?? '-';\n\n  const dataFormatada = formatDate(order.createdAt);\n\n  message +=\n    '━━━━━━━━━━━━━━━\\n' +\n    `🔢 Número: #${order.number ?? '-'}\\n` +\n    `📌 Situação: ${statusTraduzido}\\n` +\n    `👤 Cliente: ${order.client ?? '-'}\\n` +\n    `🚗 Veículo: ${order.vehicle ?? '-'}\\n` +\n    `🛠️ Serviço: ${order.description ?? '-'}\\n` +\n    `📅 Criada em: ${dataFormatada}\\n`;\n}\n\nmessage += '━━━━━━━━━━━━━━━';\n\nreturn [\n  {\n    json: {\n      message,\n      total: orders.length,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2144,
+        688
+      ],
+      "id": "2076ff2c-d990-4db5-ba0a-9e02051817b7",
+      "name": "Converte saída das ordens"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').item.json.url }}/api/auth/signin ",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cnpj",
+              "value": "41925661000105"
+            },
+            {
+              "name": "username",
+              "value": "amoreira"
+            },
+            {
+              "name": "password",
+              "value": "Alex15092901"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1792,
+        268
+      ],
+      "id": "8d0db4e8-5b26-420f-aeab-ebfd5c41d158",
+      "name": "Autenticação"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').item.json.url }}/api/contact",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "phone",
+              "value": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id.replace(/^55/, \"\") }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1120,
+        340
+      ],
+      "id": "363a1292-0e19-4d7e-abd5-30646728447d",
+      "name": "Busca contato",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbd32109-3901-440a-9e5e-f47226e380f9",
+              "name": "url",
+              "value": "https://osupflow.moreiracode.com/",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2464,
+        340
+      ],
+      "id": "9d977d25-da01-492a-a446-b942aa7188f8",
+      "name": "URL"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "Este número não está cadastrado no sistema. Por favor, solicite ao responsável pelo sistema que realize o cadastro para continuar.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -672,
+        436
+      ],
+      "id": "8aef7d3b-5612-40b9-93cc-b3c527c13dd7",
+      "name": "Send message",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -2688,
+        340
+      ],
+      "id": "733cc555-8037-46cc-929f-bcd48e83bf28",
+      "name": "WhatsApp Trigger",
+      "webhookId": "cf502643-ac7b-4a3e-b9aa-e662891b82a4",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "fPwlVvi5Vvre5pft",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "=Olá! Aqui é o assistente do OS Upflow. Seu número está vinculado à empresa {{ $('Busca contato').item.json.workshop }}. Como posso ajudar com suas ordens de serviço?",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        512,
+        288
+      ],
+      "id": "7a45d939-c57d-42b4-a0ef-3fc53c88c310",
+      "name": "Send message1",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        480
+      ],
+      "id": "68176cd8-86ce-4808-b87a-6b738b550527",
+      "name": "Send message2",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2368,
+        688
+      ],
+      "id": "1a174f2c-788a-494a-8d8c-020ec74da8f6",
+      "name": "Send message5",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "90165998-40ab-441e-8875-f8fceb6d174c",
+              "leftValue": "={{ $('WhatsApp Trigger').first().json.messages[0].type }}",
+              "rightValue": "interactive",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -672,
+        244
+      ],
+      "id": "db68e2f2-8080-49cf-bb46-e257099495ee",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].interactive.button_reply.id }}",
+                    "rightValue": "confirmarPOST",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "30ae87fc-ed35-418c-9820-81f6e225f949"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "98cfc0e7-d4f0-42d4-bc33-1049c48d68b3",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].interactive.button_reply.id }}",
+                    "rightValue": "confirmarPATCH",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e340f92f-ff18-4dad-819c-1b09439ca5e5",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].interactive.button_reply.id }}",
+                    "rightValue": "cancelar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        -16
+      ],
+      "id": "86df8e22-97c6-4ea7-a063-18b71cd1c936",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Ordem #{{ $('Criar Ordem de Serviço').item.json.number }} criada com sucesso!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        512,
+        -192
+      ],
+      "id": "fcf98d44-f0ad-4771-ac0e-0bf47dde0619",
+      "name": "Salva mensagem enviada pelo bot16"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Tudo bem, me informe novamente como posso ajudar com suas ordens de serviço?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        192
+      ],
+      "id": "fb2ab7a4-c370-495d-9a66-3288ca27b47e",
+      "name": "Salva mensagem enviada pelo bot17"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "=Ordem #{{ $json.number }} criada com sucesso!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        -192
+      ],
+      "id": "62682a35-a23a-49d4-91f1-2a779e1320f6",
+      "name": "Send message8",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "=Tudo bem, me informe novamente como posso ajudar com suas ordens de serviço?",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        192
+      ],
+      "id": "d5afada8-be47-435f-be76-93bdd6756d7f",
+      "name": "Send message9",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "value": "={{ $('Converte resposta em JSON').item.json.content.payload }}",
+        "expire": true,
+        "ttl": 120
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        688
+      ],
+      "id": "f2eaf778-1d4e-4825-ad37-51c3e35b2c9b",
+      "name": "Salvar em cache dados da ordem",
+      "credentials": {
+        "redis": {
+          "id": "lgrbYmuVmFw9PQua",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "output",
+        "key": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        0
+      ],
+      "id": "80835190-f05a-4a4c-b405-17bb3dadc819",
+      "name": "Pegar no cache dados da ordem",
+      "credentials": {
+        "redis": {
+          "id": "lgrbYmuVmFw9PQua",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Confirma a criação dessa ordem ?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1904,
+        496
+      ],
+      "id": "daa4ad9d-e74d-4630-853b-c436a9746821",
+      "name": "Salva mensagem enviada pelo bot13"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/971608699376307/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id}}\",\n  \"type\": \"interactive\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"Confirma a criação dessa ordem?\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"confirmarPOST\",\n            \"title\": \"Confirmar\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"cancelar\",\n            \"title\": \"Cancelar\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        496
+      ],
+      "id": "ddfff2ef-fb4e-497b-9308-a9fadcba56ac",
+      "name": "Confirmar Criação da Ordem",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "p1EXS7O8x4T0ZhNa",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/order",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        -192
+      ],
+      "id": "9b06cbf3-f16c-4b1a-8dc7-b6bb7bf6e16e",
+      "name": "Criar Ordem de Serviço"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/971608699376307/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id}}\",\n  \"type\": \"interactive\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"Confirma a edição dessa ordemm?\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"confirmarPATCH\",\n            \"title\": \"Confirmar\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"cancelar\",\n            \"title\": \"Cancelar\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1696,
+        880
+      ],
+      "id": "032bf8e8-81f3-4240-8243-33a84bb5a96e",
+      "name": "Confirmar Edição da Ordem",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "p1EXS7O8x4T0ZhNa",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "=Ordem #{{ $json.number }} atualizada com sucesso!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "669fedf0-c776-495e-9003-7e2fe0fa6322",
+      "name": "Send message6",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "g5Pd7om2McvlPnqk",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('URL').first().json.url }}/api/order/{{ $json.output.number }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "67e6d04e-e666-456e-95c4-411d57c33efc",
+      "name": "Atualiza Ordem de Serviço"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('If1').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Ordem #{{ $json.number }} atualizada com sucesso!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        512,
+        0
+      ],
+      "id": "8a41396d-64c8-462a-80ed-4371c6163d88",
+      "name": "Salva mensagem enviada pelo bot11"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=authorization",
+              "value": "=Bearer {{ $('Token').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "=Confirma a edição dessa ordem ?"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1920,
+        880
+      ],
+      "id": "6f67c032-9783-4ffc-a4e1-48cdd5be5247",
+      "name": "Salva mensagem enviada pelo bot19"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ebbbb1fb-4e57-4296-89c6-5a4353f26752",
+              "leftValue": "={{ $json.token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2016,
+        340
+      ],
+      "id": "33ad17f4-e678-48cd-bc22-b7c2a288b0a8",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "token",
+        "key": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -2240,
+        340
+      ],
+      "id": "18d1da4e-c0c5-4f7e-a12d-0a60ebb0387b",
+      "name": "Pega token em cache",
+      "credentials": {
+        "redis": {
+          "id": "lgrbYmuVmFw9PQua",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "value": "={{ $json.token }}",
+        "expire": true,
+        "ttl": 3600
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -1568,
+        268
+      ],
+      "id": "e95a3209-08f8-4a0e-853c-2ec670b92698",
+      "name": "Salva token em cache",
+      "credentials": {
+        "redis": {
+          "id": "lgrbYmuVmFw9PQua",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a47122bb-77c0-496e-b0de-7bca07f5dc3c",
+              "name": "token",
+              "value": "={{ $json.token }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1344,
+        340
+      ],
+      "id": "9154efb3-7d72-4201-b43f-b7dd8399321c",
+      "name": "Token"
+    }
+  ],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca mensagens": {
+      "main": [
+        [
+          {
+            "node": "Verifica necessidade de nova conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica necessidade de nova conversa": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo usuario": {
+      "main": [
+        [
+          {
+            "node": "Busca mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Converte resposta em JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte resposta em JSON": {
+      "main": [
+        [
+          {
+            "node": "Switch entre user e backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch entre user e backend": {
+      "main": [
+        [
+          {
+            "node": "Send message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Salvar em cache dados da ordem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch entre verbos": {
+      "main": [
+        [
+          {
+            "node": "Confirmar Criação da Ordem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Converte json em keys e values",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirmar Edição da Ordem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca ordens": {
+      "main": [
+        [
+          {
+            "node": "Converte saída das ordens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte json em keys e values": {
+      "main": [
+        [
+          {
+            "node": "Busca ordens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte saída das ordens": {
+      "main": [
+        [
+          {
+            "node": "Send message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação": {
+      "main": [
+        [
+          {
+            "node": "Salva token em cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca contato": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL": {
+      "main": [
+        [
+          {
+            "node": "Pega token em cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message1": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message2": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message5": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Pegar no cache dados da ordem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Salva mensagem enviada pelo usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Criar Ordem de Serviço",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Atualiza Ordem de Serviço",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message8": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message9": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salvar em cache dados da ordem": {
+      "main": [
+        [
+          {
+            "node": "Switch entre verbos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pegar no cache dados da ordem": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar Criação da Ordem": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar Ordem de Serviço": {
+      "main": [
+        [
+          {
+            "node": "Send message8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar Edição da Ordem": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message6": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualiza Ordem de Serviço": {
+      "main": [
+        [
+          {
+            "node": "Send message6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega token em cache": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva token em cache": {
+      "main": [
+        [
+          {
+            "node": "Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Token": {
+      "main": [
+        [
+          {
+            "node": "Busca contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "60d58cc80653c5ff245505fec4e3b607ec2007f60114b9380dafb5567c52ddfe"
+  }
+}

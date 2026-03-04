@@ -5,16 +5,30 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(req, { params }) {
   try {
+    let userId = ''
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      const authHeader = req.headers.get('authorization')
+      const sessionBearer = await auth.api.getSession({
+        headers: {
+          authorization: authHeader,
+        },
+      })
+
+      if (!sessionBearer?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+
+      userId = sessionBearer.user.id
+    } else {
+      userId = session.user.id
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: userId },
       select: { workshopId: true },
     })
 
@@ -52,27 +66,40 @@ export async function GET(req, { params }) {
 }
 
 export async function PATCH(req, { params }) {
-  console.log('oi')
   try {
-    // const session = await auth.api.getSession({
-    //   headers: await headers(),
-    // })
+    let userId = ''
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
 
-    // if (!session?.user?.id) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    if (!session?.user?.id) {
+      const authHeader = req.headers.get('authorization')
+      const sessionBearer = await auth.api.getSession({
+        headers: {
+          authorization: authHeader,
+        },
+      })
 
-    // const user = await prisma.user.findUnique({
-    //   where: { id: session.user.id },
-    //   select: { workshopId: true },
-    // })
+      if (!sessionBearer?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
 
-    // if (!user?.workshopId) {
-    //   return NextResponse.json(
-    //     { error: 'User has no workshop' },
-    //     { status: 400 },
-    //   )
-    // }
+      userId = sessionBearer.user.id
+    } else {
+      userId = session.user.id
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { workshopId: true },
+    })
+
+    if (!user?.workshopId) {
+      return NextResponse.json(
+        { error: 'User has no workshop' },
+        { status: 400 },
+      )
+    }
 
     const { number } = await params
     const body = await req.json()
@@ -88,8 +115,7 @@ export async function PATCH(req, { params }) {
     const existingOrder = await prisma.serviceOrder.findFirst({
       where: {
         number: parseInt(number),
-        // workshopId: user.workshopId,
-        workshopId: 'cmltitvzq0001hy0p8fmyxnde',
+        workshopId: user.workshopId,
       },
     })
 
@@ -103,8 +129,7 @@ export async function PATCH(req, { params }) {
     const updatedOrder = await prisma.serviceOrder.update({
       where: {
         workshopId_number: {
-          // workshopId: user.workshopId,
-          workshopId: 'cmltitvzq0001hy0p8fmyxnde',
+          workshopId: user.workshopId,
           number: parseInt(number),
         },
       },
