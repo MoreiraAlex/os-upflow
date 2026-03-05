@@ -46,9 +46,11 @@ export default function LoginPage() {
         username: form.username.value,
         password: form.password.value,
       }),
-    }).then((res) => {
-      if (!res.ok) throw new Error()
-      return res.json()
+    }).then(async (res) => {
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error)
+
+      return data
     })
 
     toast.promise(loginPromise, {
@@ -59,9 +61,9 @@ export default function LoginPage() {
         submitting = false
         return 'Login realizado com sucesso'
       },
-      error: () => {
+      error: (e) => {
         submitting = false
-        return 'Usuário ou senha inválidos'
+        return e?.message || 'Erro ao entrar no sistema'
       },
     })
   }

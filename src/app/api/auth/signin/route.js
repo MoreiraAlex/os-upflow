@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { headers } from 'next/headers'
+import { appError, isAppError, mapBetterAuthError } from '@/lib/errors'
 
 export async function POST(req) {
   try {
@@ -15,10 +16,7 @@ export async function POST(req) {
     })
 
     if (!workshop) {
-      return NextResponse.json(
-        { error: 'Oficina não encontrada' },
-        { status: 404 },
-      )
+      throw appError('Oficina não encontrada', 404)
     }
 
     const user = await prisma.user.findUnique({
@@ -31,25 +29,26 @@ export async function POST(req) {
     })
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'Usuário não encontrado' },
-        { status: 401 },
-      )
+      throw appError('Usuário não encontrado', 401)
     }
 
-    const signIn = await auth.api.signInEmail({
-      body: {
-        email: user.email,
-        password,
-      },
-      headers: await headers(),
-    })
+    let signIn
+    try {
+      signIn = await auth.api.signInEmail({
+        body: {
+          email: user.email,
+          password,
+        },
+        headers: await headers(),
+      })
+    } catch (err) {
+      const mapped = mapBetterAuthError(err)
+      if (mapped) throw mapped
+      throw err
+    }
 
     if (!signIn?.user) {
-      return NextResponse.json(
-        { error: 'Credenciais inválidas' },
-        { status: 401 },
-      )
+      throw appError('Credenciais inválidas', 401)
     }
 
     return NextResponse.json(signIn, {
@@ -59,8 +58,15 @@ export async function POST(req) {
   } catch (error) {
     console.error('LOGIN_ERROR', error)
 
+    if (isAppError(error)) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode },
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Erro ao entrar no sistema' },
       { status: 500 },
     )
   }
