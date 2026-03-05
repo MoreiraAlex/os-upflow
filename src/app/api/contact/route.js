@@ -31,11 +31,6 @@ export async function GET(req) {
       where: { id: userId },
       select: {
         workshopId: true,
-        workshop: {
-          select: {
-            name: true,
-          },
-        },
       },
     })
 
@@ -61,9 +56,12 @@ export async function GET(req) {
     delete params.sort
 
     const filters = []
-    filters.push({
-      workshopId: user.workshopId,
-    })
+
+    if (!params?.all) {
+      filters.push({
+        workshopId: user.workshopId,
+      })
+    }
 
     if (search) {
       const orFilters = [
@@ -115,6 +113,13 @@ export async function GET(req) {
       orderBy: sortMap[sortField] ?? { createdAt: 'desc' },
       skip: (page - 1) * pageSize,
       take: pageSize,
+      include: {
+        workshop: {
+          select: {
+            name: true,
+          },
+        },
+      },
     })
 
     const total = await prisma.contact.count({ where })
@@ -123,7 +128,7 @@ export async function GET(req) {
     return NextResponse.json(
       {
         data,
-        workshop: user.workshop.name,
+        workshop: data[0]?.workshop.name,
         pagination: {
           total,
           page,
