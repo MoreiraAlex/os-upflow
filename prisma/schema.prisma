@@ -10,8 +10,8 @@ datasource db {
 
 model Contact {
   id         String   @id @default(cuid()) @map("_id")
-  phone      String   @unique
-  name       String?
+  phone      String  
+  name       String
   createdAt  DateTime @default(now())  
 
   workshopId String
@@ -19,6 +19,7 @@ model Contact {
 
   messages   Message[]
 
+  @@unique([workshopId, phone])
   @@map("contact")
 }
 
