@@ -139,7 +139,7 @@ model ServiceOrder {
   id          String   @id @default(cuid()) @map("_id")
   number      Int      
   status      String
-  client      String?
+  client      String
   vehicle     String
   description String
 
