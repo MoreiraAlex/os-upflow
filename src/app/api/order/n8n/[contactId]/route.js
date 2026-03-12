@@ -83,7 +83,9 @@ export async function GET(req, { params }) {
       orderBy: sortMap[sortField] ?? { createdAt: 'desc' },
     })
 
-    return NextResponse.json(orders, { status: 200 })
+    const data = orders.length > 0 ? orders : []
+
+    return NextResponse.json(data, { status: 200 })
   } catch (error) {
     console.error('LIST_SERVICE_ORDERS_ERROR', error)
 
