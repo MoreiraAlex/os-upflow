@@ -16,7 +16,7 @@
               "rightValue": "={{ 0 }}",
               "operator": {
                 "type": "array",
-                "operation": "notEmpty",
+                "operation": "empty",
                 "singleValue": true
               }
             }
@@ -28,176 +28,11 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -288,
+        -2304,
         96
       ],
-      "id": "282d96ca-8343-4cce-a6fc-df1d004206b7",
+      "id": "988211db-ccf6-4cb5-92b0-31de1642c54e",
       "name": "If"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('URL').first().json.url }}/api/message",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "authorization",
-              "value": "=Bearer {{ $('Autenticação').item.json.token }}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "contactId",
-              "value": "={{ $json.data[0].id }}"
-            },
-            {
-              "name": "direction",
-              "value": "out"
-            },
-            {
-              "name": "type",
-              "value": "text"
-            },
-            {
-              "name": "content",
-              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        0,
-        0
-      ],
-      "id": "d7f655eb-5a92-484b-a3a8-fabb88f5a6e2",
-      "name": "Salva mensagem enviada pelo usuario"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('URL').first().json.url }}/api/message",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "authorization",
-              "value": "=Bearer {{ $('Autenticação').item.json.token }}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "contactId",
-              "value": "={{ $('Busca contato').first().json.data[0].id }}"
-            },
-            {
-              "name": "direction",
-              "value": "in"
-            },
-            {
-              "name": "type",
-              "value": "=text"
-            },
-            {
-              "name": "content",
-              "value": "=Olá!\nAqui é o assistente do OS Upflow.\nSeu número está vinculado à empresa {{ $('Busca contato').item.json.workshop }}.\n\nComo posso ajudar com suas ordens de serviço?"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        672,
-        0
-      ],
-      "id": "b2da0d01-c2bb-4a7b-8cfc-ef0f2c7faa48",
-      "name": "Salva mensagem enviada pelo bot"
-    },
-    {
-      "parameters": {
-        "promptType": "define",
-        "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
-        "options": {
-          "systemMessage": "=Você é o assistente conversacional do OS Upflow, um sistema de ordens de serviço para oficinas e autocenters operado exclusivamente via WhatsApp pela oficina.\nAs mensagens podem ser incompletas, não lineares ou misturar intenções. Identifique a intenção principal e use sempre o contexto recente antes de pedir novos dados. Intenções reconhecidas: criar OS, consultar OS, atualizar OS, responder dúvidas operacionais simples.\nSe houver ambiguidade entre múltiplas OS, peça somente um identificador (ex.: placa ou número da OS). Nunca crie uma nova OS automaticamente se houver uma claramente relacionada. Você não fala com clientes finais, não trata financeiro, estoque, orçamento ou usuários, e não explica funcionamento interno do sistema.\nIMPORTANTE: Retorne exclusivamente JSON puro. Nunca use markdown, blocos de código ou qualquer texto fora do JSON:\n{\"target\": \"user\" | \"backend\", \"content\": {}}\nUse \"target\": \"user\" para responder ou pedir esclarecimento com content: <mensagem>.\nUse \"target\": \"backend\" quando houver ação clara, com content:\n{\"action\": \"create\" | \"read\" | \"update\", \"payload\": {}}\ncreate: payload = {...campos}\nread: payload = {...campos de busca || all: \"*\"}\nupdate: payload = {\"number\":<numero_os>,\"data\":{...campos}}}}\nEstrutura da OS:\nnumber\nstatus - 1: Aberta |  2: Em andamento |  3: Concluída |  4: Cancelada\nclient\nvehicle\ndescription\nEstrutura mínima da OS:\nclient\nvehicle\ndescription\nEm caso de dúvida, responda com \"target\": \"user\" pedindo esclarecimento curto e natural."
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        -352,
-        832
-      ],
-      "id": "d8ac2776-13b1-4e9b-9d28-88c3787414ed",
-      "name": "AI Agent"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $('URL').first().json.url }}/api/message",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "=authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
-            },
-            {
-              "name": "direction",
-              "value": "in"
-            },
-            {
-              "name": "type",
-              "value": "=text"
-            },
-            {
-              "name": "content",
-              "value": "={{ $('Switch entre user e backend').item.json.content }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        672,
-        784
-      ],
-      "id": "dcf10412-f98b-43f6-b706-378140d3a24a",
-      "name": "Salva mensagem enviada pelo bot1"
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  const parsed = JSON.parse(item.json.output);\n\n  item.json = {\n    ...item.json,\n    ...parsed,\n  };\n}\n\nreturn items;\n"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        0,
-        944
-      ],
-      "id": "d6f77657-7f4b-4f99-ac33-6ad434a71b39",
-      "name": "Converte resposta em JSON"
     },
     {
       "parameters": {
@@ -254,10 +89,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        224,
-        944
+        1856,
+        384
       ],
-      "id": "e1d2a771-8f56-4ec4-b254-67697fe2400c",
+      "id": "a53f7cfd-8c34-487e-ac1d-dbd590d0fec9",
       "name": "Switch entre user e backend"
     },
     {
@@ -339,15 +174,15 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        672,
-        976
+        2304,
+        480
       ],
-      "id": "2e66df97-8d2b-4c7f-9b0f-09b965cf1b90",
+      "id": "7b0021af-e0c8-4c75-9c2f-7bb7cc2e3070",
       "name": "Switch entre verbos"
     },
     {
       "parameters": {
-        "url": "={{ $('URL').first().json.url }}/api/order/n8n/{{ $('Converte string do cache em json').item.json.contact.contactId }}",
+        "url": "={{ $('URL').first().json.url }}/api/order/n8n/{{ $('Mapeia saida da autenticação').item.json.contactId }}",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -362,7 +197,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -371,11 +206,12 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        1120,
-        992
+        2752,
+        496
       ],
-      "id": "1cc91390-7d35-4883-be68-2a9f5557ac01",
-      "name": "Busca ordens"
+      "id": "18cf6e80-f415-4265-b7be-5f39478cee7c",
+      "name": "Busca ordens",
+      "alwaysOutputData": true
     },
     {
       "parameters": {
@@ -384,10 +220,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        896,
-        992
+        2528,
+        496
       ],
-      "id": "16639b61-933b-4b40-85e8-c0a24296d9b8",
+      "id": "0e03d38f-028a-4033-bf8b-99e40f89d7a1",
       "name": "Converte json em keys e values"
     },
     {
@@ -399,7 +235,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -408,7 +244,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -429,23 +265,23 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        1792,
-        992
+        3424,
+        496
       ],
-      "id": "82e83d4a-3b87-406e-825a-5f5365f9bc78",
+      "id": "09099c4f-c48c-4b00-a4c1-b216f1ef85d9",
       "name": "Salva mensagem enviada pelo bot7"
     },
     {
       "parameters": {
-        "jsCode": "const orders = $input.all();\n\nconst STATUS_LABEL = {\n  1: 'Aberta',\n  2: 'Em andamento',\n  3: 'Concluída',\n  4: 'Cancelada',\n};\n\nfunction formatDate(dateString) {\n  if (!dateString) return '-';\n\n  const date = new Date(dateString);\n\n  if (isNaN(date)) return dateString;\n\n  return date.toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit',\n  });\n}\n\nif (!orders.length) {\n  return [\n    {\n      json: {\n        message:\n          'Não encontrei nenhuma ordem de serviço. Como posso te ajudar?',\n      },\n    },\n  ];\n}\n\nlet message = '*Suas ordens de serviço*\\n\\n';\n\nfor (const item of orders) {\n  const order = item.json;\n  const statusTraduzido =\n    STATUS_LABEL[order.status] ?? order.status ?? '-';\n\n  const dataFormatada = formatDate(order.createdAt);\n\n  message +=\n    '━━━━━━━━━━━━━━━\\n' +\n    `🔢 Número: #${order.number ?? '-'}\\n` +\n    `📌 Situação: ${statusTraduzido}\\n` +\n    `👤 Cliente: ${order.client ?? '-'}\\n` +\n    `🚗 Veículo: ${order.vehicle ?? '-'}\\n` +\n    `🛠️ Serviço: ${order.description ?? '-'}\\n` +\n    `📅 Criada em: ${dataFormatada}\\n`;\n}\n\nmessage += '━━━━━━━━━━━━━━━';\n\nreturn [\n  {\n    json: {\n      message,\n      total: orders.length,\n    },\n  },\n];"
+        "jsCode": "const items = $input.all();\n\nconst STATUS_LABEL = {\n  1: 'Aberta',\n  2: 'Em andamento',\n  3: 'Concluída',\n  4: 'Cancelada',\n};\n\n// const orders = items[0].json.data || []\nconst orders = items[0].json.data?.orders || [];\n\nfunction formatDate(dateString) {\n  if (!dateString) return '-';\n\n  const date = new Date(dateString);\n\n  if (isNaN(date)) return dateString;\n\n  return date.toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit',\n  });\n}\n\nif (!orders.length) {\n  return [\n    {\n      json: {\n        message:\n          'Não encontrei nenhuma ordem de serviço. Como posso te ajudar?',\n      },\n    },\n  ];\n}\n\nlet message = '*Suas ordens de serviço*\\n\\n';\n\nfor (const order of orders) {\n  // const order = item.json;\n  const statusTraduzido =\n    STATUS_LABEL[order.status] ?? order.status ?? '-';\n\n  const dataFormatada = formatDate(order.createdAt);\n\n  message +=\n    '━━━━━━━━━━━━━━━\\n' +\n    `🔢 Número: #${order.number ?? '-'}\\n` +\n    `📌 Situação: ${statusTraduzido}\\n` +\n    `👤 Cliente: ${order.client ?? '-'}\\n` +\n    `🚗 Veículo: ${order.vehicle ?? '-'}\\n` +\n    `🛠️ Serviço: ${order.description ?? '-'}\\n` +\n    `📅 Criada em: ${dataFormatada}\\n`;\n}\n\nmessage += '━━━━━━━━━━━━━━━';\n\nreturn [\n  {\n    json: {\n      message,\n      total: orders.length,\n    },\n  },\n];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1344,
-        992
+        2976,
+        496
       ],
-      "id": "0ef02cee-a2d2-4ff1-b090-300f6c7ec9da",
+      "id": "d0fb98c8-ed96-4948-a14d-c53338603bb9",
       "name": "Converte saída das ordens"
     },
     {
@@ -474,10 +310,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -800,
+        -2752,
         96
       ],
-      "id": "27260b8d-88e3-4bf4-b869-339bd46c5016",
+      "id": "48c730da-b2cf-4aa9-9523-b05e39ce6e51",
       "name": "Autenticação"
     },
     {
@@ -510,37 +346,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -576,
+        -2528,
         96
       ],
-      "id": "b161e9f9-695d-4207-8d60-3f2a8de6d427",
+      "id": "106d4dc4-9344-4ef0-931e-11ee1e65824a",
       "name": "Busca contato",
       "alwaysOutputData": false,
       "executeOnce": false,
       "retryOnFail": false
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "dbd32109-3901-440a-9e5e-f47226e380f9",
-              "name": "url",
-              "value": "https://osupflow.moreiracode.com/",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -1696,
-        496
-      ],
-      "id": "71471078-d69e-40a1-bcbf-92375509867f",
-      "name": "URL"
     },
     {
       "parameters": {
@@ -553,62 +366,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1.1,
       "position": [
-        0,
-        192
+        -2080,
+        0
       ],
-      "id": "6bb601c2-80ca-4a06-9b61-f2c42d734a8c",
+      "id": "c6717825-9c46-4475-ad81-f722f8b48d21",
       "name": "Send message",
       "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
       "credentials": {
         "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
-          "name": "WhatsApp account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "updates": [
-          "messages"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.whatsAppTrigger",
-      "typeVersion": 1,
-      "position": [
-        -1920,
-        496
-      ],
-      "id": "93ac15db-3f25-4d7b-8879-1ac9778aa480",
-      "name": "WhatsApp Trigger",
-      "webhookId": "cf502643-ac7b-4a3e-b9aa-e662891b82a4",
-      "credentials": {
-        "whatsAppTriggerApi": {
-          "id": "g9VhUcOeASGYvjgV",
-          "name": "WhatsApp OAuth account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "send",
-        "phoneNumberId": "971608699376307",
-        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
-        "textBody": "=Olá! Aqui é o assistente do OS Upflow. Seu número está vinculado à empresa {{ $('Busca contato').item.json.workshop }}. Como posso ajudar com suas ordens de serviço?",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.whatsApp",
-      "typeVersion": 1.1,
-      "position": [
-        448,
-        0
-      ],
-      "id": "3cd93edb-3f7c-4f50-ac35-4104fa0dfeeb",
-      "name": "Send message1",
-      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
-      "credentials": {
-        "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
+          "id": "wMu4rhmUiwnXSZYx",
           "name": "WhatsApp account"
         }
       }
@@ -624,15 +390,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1.1,
       "position": [
-        448,
-        784
+        2080,
+        288
       ],
-      "id": "5b76fe5b-c216-4840-a797-ec5351f773ca",
+      "id": "a5f45b03-4834-4aa1-b49d-0093d723a162",
       "name": "Send message2",
       "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
       "credentials": {
         "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
+          "id": "wMu4rhmUiwnXSZYx",
           "name": "WhatsApp account"
         }
       }
@@ -648,15 +414,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1.1,
       "position": [
-        1568,
-        992
+        3200,
+        496
       ],
-      "id": "aee48051-5245-4ae4-a69d-e2d6f7e1ec1c",
+      "id": "32b8df56-ad26-49f5-a0c3-3f2b62de4026",
       "name": "Send message5",
       "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
       "credentials": {
         "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
+          "id": "wMu4rhmUiwnXSZYx",
           "name": "WhatsApp account"
         }
       }
@@ -739,10 +505,10 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        0,
-        432
+        -512,
+        32
       ],
-      "id": "9b3f642e-b761-4853-965c-1f1855f9b94e",
+      "id": "13f57fdf-0964-4479-bbb7-35efb3780e49",
       "name": "Switch"
     },
     {
@@ -754,7 +520,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -763,7 +529,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -784,10 +550,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        672,
-        208
+        160,
+        -144
       ],
-      "id": "a92ca97a-7244-478a-80b2-b44ffc814c69",
+      "id": "9ece3d10-ca07-4b02-bd95-f31834800557",
       "name": "Salva mensagem enviada pelo bot16"
     },
     {
@@ -799,7 +565,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -808,7 +574,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -829,10 +595,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        448,
-        592
+        -64,
+        240
       ],
-      "id": "7b697243-c520-47dd-b657-f5dcadd2b292",
+      "id": "d7adab49-eeaf-41d9-a11f-2199d26826ec",
       "name": "Salva mensagem enviada pelo bot17"
     },
     {
@@ -846,15 +612,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1.1,
       "position": [
-        448,
-        208
+        -64,
+        -144
       ],
-      "id": "e95942a3-ed6b-478b-bb6c-665fd0c7fe82",
+      "id": "28ef9b05-7e2d-486b-9842-991af739e829",
       "name": "Send message8",
       "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
       "credentials": {
         "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
+          "id": "wMu4rhmUiwnXSZYx",
           "name": "WhatsApp account"
         }
       }
@@ -870,15 +636,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1.1,
       "position": [
-        224,
-        592
+        -288,
+        240
       ],
-      "id": "94782166-7c91-4318-bc7b-5668c9f3199e",
+      "id": "eea3785e-3a93-47dc-9e3a-979c66a9f1e5",
       "name": "Send message9",
       "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
       "credentials": {
         "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
+          "id": "wMu4rhmUiwnXSZYx",
           "name": "WhatsApp account"
         }
       }
@@ -887,7 +653,7 @@
       "parameters": {
         "operation": "set",
         "key": "=message-{{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
-        "value": "={{ $('Converte resposta em JSON').item.json.content.payload }}",
+        "value": "={{ JSON.stringify($('Converte resposta em JSON').item.json.content.payload) }}",
         "keyType": "string",
         "expire": true,
         "ttl": 120
@@ -895,14 +661,14 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        448,
-        992
+        2080,
+        496
       ],
-      "id": "bd7ff5a4-662f-43a0-90f3-5d44fbcc3165",
+      "id": "cc7aebbf-ef64-4348-bf20-d834b4269588",
       "name": "Salvar em cache dados da ordem",
       "credentials": {
         "redis": {
-          "id": "EjKzuuQI2BDmL5WD",
+          "id": "d5y1rCN22hjXcaZY",
           "name": "Redis account"
         }
       }
@@ -917,14 +683,14 @@
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        -288,
-        448
+        -960,
+        48
       ],
-      "id": "cd3f441e-9cba-4325-adf5-5cb6a6b48f61",
+      "id": "432c4a2c-338c-4aea-a017-a03b2a5ed442",
       "name": "Pegar no cache dados da ordem",
       "credentials": {
         "redis": {
-          "id": "EjKzuuQI2BDmL5WD",
+          "id": "d5y1rCN22hjXcaZY",
           "name": "Redis account"
         }
       }
@@ -938,7 +704,7 @@
           "parameters": [
             {
               "name": "=authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -947,7 +713,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -968,10 +734,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        1120,
-        800
+        3424,
+        304
       ],
-      "id": "c716e6b7-7f40-45ab-b7c9-08e3d474c09e",
+      "id": "0fc8a8cf-9da5-4276-b4a4-dda9fd63d1b2",
       "name": "Salva mensagem enviada pelo bot13"
     },
     {
@@ -988,14 +754,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        896,
-        800
+        3200,
+        304
       ],
-      "id": "3b841f85-3879-4fb4-b294-50ace688b768",
+      "id": "3d16cd9d-0530-4876-b034-61eaac298983",
       "name": "Confirmar Criação da Ordem",
       "credentials": {
         "httpBearerAuth": {
-          "id": "LGWTdu6kphsQUAXd",
+          "id": "nnTJ4QqJaFFDe4Hh",
           "name": "Bearer Auth account"
         }
       }
@@ -1003,13 +769,13 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $('URL').first().json.url }}/api/order/n8n/{{ $('Converte string do cache em json').item.json.contact.contactId }}",
+        "url": "={{ $('URL').first().json.url }}/api/order/n8n/{{ $('Mapeia saida da autenticação').item.json.contactId }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -1021,37 +787,11 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        224,
-        208
+        -288,
+        -144
       ],
-      "id": "5ca8dbba-c09e-41a9-b406-495ee3676a50",
+      "id": "c068072f-b1a5-49d0-b63a-08bf650e5e9d",
       "name": "Criar Ordem de Serviço"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://graph.facebook.com/v25.0/971608699376307/messages",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpBearerAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id}}\",\n  \"type\": \"interactive\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"Confirma a edição dessa ordem?\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"confirmarPATCH\",\n            \"title\": \"Confirmar\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"cancelar\",\n            \"title\": \"Cancelar\"\n          }\n        }\n      ]\n    }\n  }\n}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        896,
-        1184
-      ],
-      "id": "68bb1fef-c28b-4d32-8ab9-c538c335d059",
-      "name": "Confirmar Edição da Ordem",
-      "credentials": {
-        "httpBearerAuth": {
-          "id": "LGWTdu6kphsQUAXd",
-          "name": "Bearer Auth account"
-        }
-      }
     },
     {
       "parameters": {
@@ -1064,15 +804,15 @@
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1.1,
       "position": [
-        448,
-        400
+        -64,
+        48
       ],
-      "id": "02546625-0916-47a3-84df-d412c0db0d5e",
+      "id": "3c7205e9-3ea2-4205-9ed3-c314834fcf57",
       "name": "Send message6",
       "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
       "credentials": {
         "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
+          "id": "wMu4rhmUiwnXSZYx",
           "name": "WhatsApp account"
         }
       }
@@ -1080,28 +820,28 @@
     {
       "parameters": {
         "method": "PATCH",
-        "url": "={{ $('URL').first().json.url }}/api/order/n8n/{{ $('Converte string do cache em json').item.json.contact.contactId }}/{{ $json.output.number }}",
+        "url": "={{ $('URL').first().json.url }}/api/order/n8n/{{ $('Mapeia saida da autenticação').item.json.contactId }}/{{ $json.output.number }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Autenticação').first().json.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ $json.output }}",
+        "jsonBody": "={{ $json.output.data }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        224,
-        400
+        -288,
+        48
       ],
-      "id": "db6f0a9d-2e67-4393-9e7d-da7b872cfa33",
+      "id": "1806b0c4-a8a2-467a-a8c1-b339e6071d3f",
       "name": "Atualiza Ordem de Serviço"
     },
     {
@@ -1113,7 +853,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -1122,7 +862,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -1143,10 +883,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        672,
-        400
+        160,
+        48
       ],
-      "id": "3017e595-64f9-4436-aa55-951da911131c",
+      "id": "ae1c984a-b9ea-4d19-a421-7166370b7468",
       "name": "Salva mensagem enviada pelo bot11"
     },
     {
@@ -1158,7 +898,7 @@
           "parameters": [
             {
               "name": "=authorization",
-              "value": "=Bearer {{ $('Converte string do cache em json').item.json.contact.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -1167,7 +907,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -1188,103 +928,34 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        1120,
-        1184
+        3424,
+        688
       ],
-      "id": "ac089e57-5df8-4f9a-86cd-4b32831b8545",
+      "id": "33636715-3b43-4f5c-b421-8805a1d86719",
       "name": "Salva mensagem enviada pelo bot19"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "ebbbb1fb-4e57-4296-89c6-5a4353f26752",
-              "leftValue": "={{ $json.contact.token }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "notExists",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -1024,
-        496
-      ],
-      "id": "8b565c87-0bbe-44c2-989e-3b867dc7ec58",
-      "name": "If2"
-    },
-    {
-      "parameters": {
-        "operation": "get",
-        "propertyName": "contact",
-        "key": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.redis",
-      "typeVersion": 1,
-      "position": [
-        -1472,
-        496
-      ],
-      "id": "8dd3c98a-8a8f-4691-aacb-32d88a12c47f",
-      "name": "Pega contato em cache",
-      "credentials": {
-        "redis": {
-          "id": "EjKzuuQI2BDmL5WD",
-          "name": "Redis account"
-        }
-      }
     },
     {
       "parameters": {
         "operation": "set",
         "key": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
-        "value": "={\n  \"token\": \"{{ $('Autenticação').item.json.token }}\",\n  \"contactId\": \"{{ $json.contactId }}\"\n}",
+        "value": "={\n  \"token\": \"{{ $('Autenticação').item.json.token }}\",\n  \"contactId\": \"{{ $json.data[0].id }}\"\n}",
         "expire": true,
         "ttl": 3600
       },
       "type": "n8n-nodes-base.redis",
       "typeVersion": 1,
       "position": [
-        224,
-        0
+        -2080,
+        192
       ],
-      "id": "c365ca92-df80-460f-b54d-3dadb6112ee7",
+      "id": "3d398f29-bac1-4363-ad7f-b8f303efbe6b",
       "name": "Salva contato em cache",
       "credentials": {
         "redis": {
-          "id": "EjKzuuQI2BDmL5WD",
+          "id": "d5y1rCN22hjXcaZY",
           "name": "Redis account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst contact = JSON.parse(items[0].json.contact);\n\nreturn [\n  {\n    json: {\n      contact\n    }\n  }\n];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -1248,
-        496
-      ],
-      "id": "48ce4201-e092-45c0-9e64-fcf8df05bf5f",
-      "name": "Converte string do cache em json"
     },
     {
       "parameters": {
@@ -1295,7 +966,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $json.contact.token }}"
+              "value": "=Bearer {{ $json.token }}"
             }
           ]
         },
@@ -1304,7 +975,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $json.contact.contactId }}"
+              "value": "={{ $json.contactId }}"
             },
             {
               "name": "direction",
@@ -1316,7 +987,7 @@
             },
             {
               "name": "content",
-              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}"
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].interactive.button_reply.title }}"
             }
           ]
         },
@@ -1325,11 +996,309 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        -800,
-        880
+        -1184,
+        48
       ],
-      "id": "3630ab84-5933-4595-81c6-95356a6574e2",
+      "id": "d249a1ba-0faf-4858-ab41-f634a54b6a22",
       "name": "Salva mensagem enviada pelo usuario1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Gerar resumo da criação da OS').item.json.resumo }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2976,
+        304
+      ],
+      "id": "c5a5236e-9447-41ed-87c5-8d1ed03db381",
+      "name": "Salva mensagem enviada pelo bot8"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.resumo }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2752,
+        304
+      ],
+      "id": "0671a78b-94b3-4857-a314-33c1bc8e19ae",
+      "name": "Send message7",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wMu4rhmUiwnXSZYx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/971608699376307/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id}}\",\n  \"type\": \"interactive\",\n  \"interactive\": {\n    \"type\": \"button\",\n    \"body\": {\n      \"text\": \"Confirma a edição dessa ordem?\"\n    },\n    \"action\": {\n      \"buttons\": [\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"confirmarPATCH\",\n            \"title\": \"Confirmar\"\n          }\n        },\n        {\n          \"type\": \"reply\",\n          \"reply\": {\n            \"id\": \"cancelar\",\n            \"title\": \"Cancelar\"\n          }\n        }\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3200,
+        688
+      ],
+      "id": "3612295d-4d6e-4d09-be24-c31edaead0bd",
+      "name": "Confirmar Edição da Ordem",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "nnTJ4QqJaFFDe4Hh",
+          "name": "Bearer Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('Gerar resumo da edição da OS').item.json.resumo }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2976,
+        688
+      ],
+      "id": "194165c0-a699-4dc8-9bc8-d7f50b1101db",
+      "name": "Salva mensagem enviada pelo bot9"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.resumo }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        2752,
+        688
+      ],
+      "id": "bf157d5a-260a-4e02-b169-3b06fa557a66",
+      "name": "Send message10",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wMu4rhmUiwnXSZYx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst payload = items[0].json.content.payload;\n\nconst number = payload.number ?? \"Não informado\";\nconst data = payload.data ?? {};\n\nconst statusMap = {\n  1: \"Aberta\",\n  2: \"Em andamento\",\n  3: \"Concluída\",\n  4: \"Cancelada\"\n};\n\nlet changes = [];\n\nif (data.client) {\n  changes.push(`👤 Cliente: ${data.client}`);\n}\n\nif (data.vehicle) {\n  changes.push(`🚗 Veículo: ${data.vehicle}`);\n}\n\nif (data.description) {\n  changes.push(`📝 Serviço: ${data.description}`);\n}\n\nif (data.status) {\n  changes.push(`📊 Status: ${statusMap[data.status] ?? data.status}`);\n}\n\nconst resumo = `Alteração na OS #${number}:\n\n${changes.join(\"\\n\")}`;\n\nreturn [\n  {\n    json: {\n      ...items,\n      resumo\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2528,
+        688
+      ],
+      "id": "1d041a30-43cc-4e26-b6c6-9ee076190280",
+      "name": "Gerar resumo da edição da OS"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst items = $input.all();\nconst payload = items[0].json.content.payload;\n\nconst client = payload.client ?? \"Não informado\";\nconst vehicle = payload.vehicle ?? \"Não informado\";\nconst description = payload.description ?? \"Não informado\";\n\nconst resumo = `Resumo da ordem:\n\n👤 Cliente: ${client}\n🚗 Veículo: ${vehicle}\n🛠️ Serviço: ${description}`;\n\nreturn [\n  {\n    json: {\n      ...items,\n      resumo\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2528,
+        304
+      ],
+      "id": "bc3aaae3-5331-44d1-8d28-afccb6c154bd",
+      "name": "Gerar resumo da criação da OS"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = JSON.parse(items[0].json.output);\n\nreturn [\n  {\n    json: {\n      output\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        48
+      ],
+      "id": "ffd5073d-bd10-4b54-b335-2cada01a0bf5",
+      "name": "Converte String em Json"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -288,
+        480
+      ],
+      "id": "abf32ce5-ea1a-463a-bd57-ae4f652e945c",
+      "name": "Salva mensagem enviada pelo usuario2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 100
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1296,
+        608
+      ],
+      "id": "36e19d37-2495-4070-b2b4-18f9e3cf7e56",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "acJXGARf4VHh47Tt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=openIA-{{ $json.contactId }}",
+        "sessionTTL": 3600,
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        1424,
+        608
+      ],
+      "id": "a0ab3149-f0f7-4e1d-a45a-9b7c9f117295",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "d5y1rCN22hjXcaZY",
+          "name": "Redis account"
+        }
+      }
     },
     {
       "parameters": {
@@ -1410,11 +1379,299 @@
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
       "position": [
-        -576,
-        864
+        -1408,
+        320
       ],
-      "id": "259d517d-f3c5-4bc1-8a4e-8a79f3f7d591",
+      "id": "31b509fa-fd66-48d6-83a0-c8a5922312e2",
       "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst contact = JSON.parse(items[0].json.contact);\n\nreturn [\n  {\n    json: {\n      contact\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3200,
+        192
+      ],
+      "id": "affd78ae-6c65-4582-bf7a-ae110e6ac57d",
+      "name": "Converte string do cache em json"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "contact",
+        "key": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -3424,
+        192
+      ],
+      "id": "124c6185-7986-4483-8db5-1300649e52b7",
+      "name": "Pega contato em cache",
+      "credentials": {
+        "redis": {
+          "id": "d5y1rCN22hjXcaZY",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ebbbb1fb-4e57-4296-89c6-5a4353f26752",
+              "leftValue": "={{ $json.contact.token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2976,
+        192
+      ],
+      "id": "e0bd3884-1fe4-4e8e-9193-1358ce1647b4",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4096,
+        192
+      ],
+      "id": "2b0cce0e-d906-40a6-9f20-f485f37673d7",
+      "name": "WhatsApp Trigger",
+      "webhookId": "cf502643-ac7b-4a3e-b9aa-e662891b82a4",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "LHOZYBSzJftMBGXg",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbd32109-3901-440a-9e5e-f47226e380f9",
+              "name": "url",
+              "value": "https://osupflow.moreiracode.com/",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3648,
+        192
+      ],
+      "id": "35102773-6a4b-4be2-9e65-1c7bce78c5ac",
+      "name": "URL"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  const parsed = JSON.parse(item.json.output);\n\n  item.json = {\n    ...item.json,\n    ...parsed,\n  };\n}\n\nreturn items;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1632,
+        384
+      ],
+      "id": "ac277d08-65c8-4b31-9d60-bdc694e316f7",
+      "name": "Converte resposta em JSON"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "=Você é o assistente conversacional do OS Upflow, um sistema de ordens de serviço para oficinas e autocenters operado exclusivamente via WhatsApp pela oficina.\nAs mensagens podem ser incompletas, não lineares ou misturar intenções. Identifique a intenção principal e use sempre o contexto recente antes de pedir novos dados. Intenções reconhecidas: criar OS, consultar OS, atualizar OS, responder dúvidas operacionais simples.\nSe houver ambiguidade entre múltiplas OS, peça somente um identificador (ex.: placa ou número da OS). Nunca crie uma nova OS automaticamente se houver uma claramente relacionada. Você não fala com clientes finais, não trata financeiro, estoque, orçamento ou usuários, e não explica funcionamento interno do sistema.\nIMPORTANTE: Retorne exclusivamente JSON puro. Nunca use markdown, blocos de código ou qualquer texto fora do JSON:\n{\"target\": \"user\" | \"backend\", \"content\": {}}\nUse \"target\": \"user\" para responder ou pedir esclarecimento com content: <mensagem>.\nUse \"target\": \"backend\" quando houver ação clara, com content:\n{\"action\": \"create\" | \"read\" | \"update\", \"payload\": {}}\ncreate: payload = {...campos}\nread: payload = {...campos de busca || all: \"*\"}\nupdate: payload = {\"number\":<numero_os>,\"data\":{...campos}}}}\nEstrutura da OS:\nnumber\nstatus - 1: Aberta |  2: Em andamento |  3: Concluída |  4: Cancelada\nclient\nvehicle\ndescription\nEstrutura mínima da OS:\nclient\nvehicle\ndescription\nEm caso de dúvida, responda com \"target\": \"user\" pedindo esclarecimento curto e natural."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1280,
+        384
+      ],
+      "id": "86f1c3d1-ac98-4960-8bea-11a925f0352e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -1184,
+        576
+      ],
+      "id": "64ce6249-b444-4f6f-b89c-779e8d629510",
+      "name": "Download media",
+      "webhookId": "71abe05d-610c-4cce-b710-2576ceba3da4",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wMu4rhmUiwnXSZYx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -960,
+        576
+      ],
+      "id": "ae7d6501-bb98-4f3a-bc68-483de4b48a23",
+      "name": "Baixa o audio",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wMu4rhmUiwnXSZYx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "pt"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        -736,
+        576
+      ],
+      "id": "610e08c5-4711-4dde-8cd5-82912191e644",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "acJXGARf4VHh47Tt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae1d93b9-d00a-4115-a2ac-5876ed210c4c",
+              "name": "text",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+              "type": "string"
+            },
+            {
+              "id": "90ef412c-eef5-412a-a937-737fb55be3a9",
+              "name": "token",
+              "value": "={{ $json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "dabfb4be-a830-4983-a205-16aacec26bbe",
+              "name": "contactId",
+              "value": "={{ $json.contactId }}",
+              "type": "string"
+            },
+            {
+              "id": "f8bf0198-59f9-42bc-9b0b-fa6882d93057",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -512,
+        384
+      ],
+      "id": "14aee0a2-ed00-4475-bf85-bd706116b7bf",
+      "name": "Mapeia saida"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae1d93b9-d00a-4115-a2ac-5876ed210c4c",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "90ef412c-eef5-412a-a937-737fb55be3a9",
+              "name": "token",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "dabfb4be-a830-4983-a205-16aacec26bbe",
+              "name": "contactId",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -512,
+        576
+      ],
+      "id": "65d80305-36f2-4bea-959e-71e92fc1aaa4",
+      "name": "Mapeia saida do audio"
     },
     {
       "parameters": {
@@ -1425,7 +1682,7 @@
           "parameters": [
             {
               "name": "authorization",
-              "value": "=Bearer {{ $('Autenticação').item.json.token }}"
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
             }
           ]
         },
@@ -1434,7 +1691,7 @@
           "parameters": [
             {
               "name": "contactId",
-              "value": "={{ $('Busca contato').first().json.data[0].id }}"
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
             },
             {
               "name": "direction",
@@ -1446,7 +1703,7 @@
             },
             {
               "name": "content",
-              "value": "=O formato desta mensagem ainda não é suportado"
+              "value": "={{ $('Switch entre user e backend').item.json.content }}"
             }
           ]
         },
@@ -1455,83 +1712,381 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        0,
-        1232
+        2304,
+        288
       ],
-      "id": "1bb4a04b-434d-42fb-949e-17fc23953e34",
-      "name": "Salva mensagem enviada pelo bot2"
+      "id": "b8814cdf-af98-4c62-9ce0-025eb98c3330",
+      "name": "Salva mensagem enviada pelo bot1"
     },
     {
       "parameters": {
-        "operation": "send",
-        "phoneNumberId": "971608699376307",
-        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').first().json.contacts[0].wa_id }}",
-        "textBody": "=O formato desta mensagem ainda não é suportado",
-        "additionalFields": {}
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db62fc09-6523-48fc-b3a1-0986f9448b88",
+              "name": "=token",
+              "value": "={{ $('Autenticação').item.json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "a020bb75-5bc1-4d7d-bb34-4612512c60d9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "16b45a79-b72e-4034-aff5-5c9cd2f85d4b",
+              "name": "contactId",
+              "value": "={{ $json.data[0].id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
       },
-      "type": "n8n-nodes-base.whatsApp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1856,
+        192
+      ],
+      "id": "65ba04f1-7974-4dc5-842c-74f3c5545ff0",
+      "name": "Mapeia saida sem cache"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db62fc09-6523-48fc-b3a1-0986f9448b88",
+              "name": "=token",
+              "value": "={{ $('Converte string do cache em json').item.json.contact.token }}",
+              "type": "string"
+            },
+            {
+              "id": "a020bb75-5bc1-4d7d-bb34-4612512c60d9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "16b45a79-b72e-4034-aff5-5c9cd2f85d4b",
+              "name": "contactId",
+              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1856,
+        384
+      ],
+      "id": "bccf1263-9094-4e69-811b-890f0af37b2d",
+      "name": "Mapeia saida com cache"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db62fc09-6523-48fc-b3a1-0986f9448b88",
+              "name": "=token",
+              "value": "={{ $json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "a020bb75-5bc1-4d7d-bb34-4612512c60d9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "16b45a79-b72e-4034-aff5-5c9cd2f85d4b",
+              "name": "contactId",
+              "value": "={{ $json.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1632,
+        336
+      ],
+      "id": "1ce61ee3-27e2-488b-adaa-fac394c8b234",
+      "name": "Mapeia saida da autenticação"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -288,
-        1232
+        160,
+        480
       ],
-      "id": "5eb0b1d3-0b14-4c1d-b314-0d7b44454562",
-      "name": "Send message3",
-      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
-      "credentials": {
-        "whatsAppApi": {
-          "id": "zOrEOg6AfUV12bAw",
-          "name": "WhatsApp account"
-        }
-      }
+      "id": "159b0eb2-972e-400a-a003-765c51234a45",
+      "name": "Wait",
+      "webhookId": "14be1bad-0872-4de5-8cce-91b17575a211"
     },
     {
       "parameters": {
-        "sessionIdType": "customKey",
-        "sessionKey": "=openIA-{{ $json.contactId }}",
-        "sessionTTL": 3600,
-        "contextWindowLength": 20
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a749dc3b-6343-440c-af54-f53fa64651bf",
+              "leftValue": "={{ $json.messages.last() }}",
+              "rightValue": "={{ $('Wait').item.json.content }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
-      "typeVersion": 1.5,
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
       "position": [
-        -224,
-        1056
+        608,
+        480
       ],
-      "id": "16baaf11-6ac5-4626-88a4-ea91fcc0cd22",
-      "name": "Redis Chat Memory",
+      "id": "3a6bfb16-a750-47fc-b7ab-a5f1aa6318dd",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "=list-{{ $json.contactId }}",
+        "messageData": "={{ $json.content }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        480
+      ],
+      "id": "8614af87-37c0-4670-95c9-cbc8c8fea906",
+      "name": "Salva mensagem na lista de mensagens",
       "credentials": {
         "redis": {
-          "id": "EjKzuuQI2BDmL5WD",
+          "id": "d5y1rCN22hjXcaZY",
           "name": "Redis account"
         }
       }
     },
     {
       "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gpt-4.1-mini",
-          "mode": "list",
-          "cachedResultName": "gpt-4.1-mini"
-        },
-        "builtInTools": {},
-        "options": {
-          "maxTokens": 100
-        }
+        "operation": "get",
+        "propertyName": "messages",
+        "key": "=list-{{ $json.contactId }}",
+        "options": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.3,
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
       "position": [
-        -352,
-        1056
+        384,
+        480
       ],
-      "id": "1fd04ccf-9f07-490b-95a1-08f4be8a0f00",
-      "name": "OpenAI Chat Model",
+      "id": "0b4f1a45-5acf-42cd-b2bd-1c0df3912f4b",
+      "name": "Pega lista de mensagens",
       "credentials": {
-        "openAiApi": {
-          "id": "bq4rfMZf7DvH53a8",
-          "name": "OpenAi account"
+        "redis": {
+          "id": "d5y1rCN22hjXcaZY",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        832,
+        576
+      ],
+      "id": "aa442e94-e166-46b8-935d-62212b619252",
+      "name": "Ignora"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2b78aba-aa58-4bbd-a9bb-8eb9a52d7294",
+              "name": "message",
+              "value": "={{ $json.messages.join(\" \") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        832,
+        384
+      ],
+      "id": "c1660659-2e11-438a-86bc-df32c5e157fb",
+      "name": "Agrupa mensagens"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=list-{{ $('Wait').item.json.contactId }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        384
+      ],
+      "id": "b7a71136-a3ee-430c-a619-27be2d5b5172",
+      "name": "Deleta lista de mensagens",
+      "credentials": {
+        "redis": {
+          "id": "d5y1rCN22hjXcaZY",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b7c3e1bc-512f-48ec-b239-fefbd2375a01",
+              "leftValue": "={{ $json.messages }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3872,
+        192
+      ],
+      "id": "c81df943-dd3b-4e7d-b660-93d997626095",
+      "name": "If3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -3648,
+        384
+      ],
+      "id": "8c1b53b2-30dd-4d47-989f-ee4d18af15b1",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "wa_id_error",
+        "value": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -3648,
+        0
+      ],
+      "id": "ee1f9ff7-0d7b-4c4b-89d6-ab5d95b5459d",
+      "name": "Salva wa_id para erros",
+      "credentials": {
+        "redis": {
+          "id": "d5y1rCN22hjXcaZY",
+          "name": "Redis account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -4096,
+        912
+      ],
+      "id": "7e92f6e2-970e-4060-944c-672c2a815e68",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $json.wa_id }}",
+        "textBody": "Identificamos uma instabilidade temporária no sistema. Nossa equipe já está trabalhando para normalizar o serviço. Por favor, tente novamente mais tarde.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -3648,
+        912
+      ],
+      "id": "8b74075c-7c93-4c3d-b0ff-a1f7573fd749",
+      "name": "Send message1",
+      "webhookId": "e9489b06-d3b3-42b6-abe1-eee11930f885",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "wMu4rhmUiwnXSZYx",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "wa_id",
+        "key": "wa_id_error",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -3872,
+        912
+      ],
+      "id": "582e8e5c-0c90-44a4-bd84-aa218910890f",
+      "name": "Pega wa_id",
+      "credentials": {
+        "redis": {
+          "id": "d5y1rCN22hjXcaZY",
+          "name": "Redis account"
         }
       }
     }
@@ -1541,47 +2096,14 @@
       "main": [
         [
           {
-            "node": "Salva mensagem enviada pelo usuario",
+            "node": "Send message",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Send message",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Salva mensagem enviada pelo usuario": {
-      "main": [
-        [
-          {
             "node": "Salva contato em cache",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Converte resposta em JSON",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Converte resposta em JSON": {
-      "main": [
-        [
-          {
-            "node": "Switch entre user e backend",
             "type": "main",
             "index": 0
           }
@@ -1610,7 +2132,7 @@
       "main": [
         [
           {
-            "node": "Confirmar Criação da Ordem",
+            "node": "Gerar resumo da criação da OS",
             "type": "main",
             "index": 0
           }
@@ -1624,7 +2146,7 @@
         ],
         [
           {
-            "node": "Confirmar Edição da Ordem",
+            "node": "Gerar resumo da edição da OS",
             "type": "main",
             "index": 0
           }
@@ -1680,39 +2202,6 @@
         [
           {
             "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "URL": {
-      "main": [
-        [
-          {
-            "node": "Pega contato em cache",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "WhatsApp Trigger": {
-      "main": [
-        [
-          {
-            "node": "URL",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Send message1": {
-      "main": [
-        [
-          {
-            "node": "Salva mensagem enviada pelo bot",
             "type": "main",
             "index": 0
           }
@@ -1803,7 +2292,7 @@
       "main": [
         [
           {
-            "node": "Switch",
+            "node": "Converte String em Json",
             "type": "main",
             "index": 0
           }
@@ -1832,17 +2321,6 @@
         ]
       ]
     },
-    "Confirmar Edição da Ordem": {
-      "main": [
-        [
-          {
-            "node": "Salva mensagem enviada pelo bot19",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Send message6": {
       "main": [
         [
@@ -1865,40 +2343,168 @@
         ]
       ]
     },
-    "If2": {
+    "Salva contato em cache": {
       "main": [
         [
           {
-            "node": "Autenticação",
+            "node": "Mapeia saida sem cache",
             "type": "main",
             "index": 0
           }
-        ],
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo usuario1": {
+      "main": [
+        [
+          {
+            "node": "Pegar no cache dados da ordem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot8": {
+      "main": [
+        [
+          {
+            "node": "Confirmar Criação da Ordem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message7": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmar Edição da Ordem": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo bot9": {
+      "main": [
+        [
+          {
+            "node": "Confirmar Edição da Ordem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message10": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar resumo da edição da OS": {
+      "main": [
+        [
+          {
+            "node": "Send message10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar resumo da criação da OS": {
+      "main": [
+        [
+          {
+            "node": "Send message7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte String em Json": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo usuario2": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem na lista de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
         [
           {
             "node": "Salva mensagem enviada pelo usuario1",
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Pega contato em cache": {
-      "main": [
+        ],
         [
           {
-            "node": "Converte string do cache em json",
+            "node": "Mapeia saida",
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Salva contato em cache": {
-      "main": [
+        ],
         [
           {
-            "node": "Send message1",
+            "node": "Download media",
             "type": "main",
             "index": 0
           }
@@ -1916,7 +2522,157 @@
         ]
       ]
     },
-    "Salva mensagem enviada pelo usuario1": {
+    "Pega contato em cache": {
+      "main": [
+        [
+          {
+            "node": "Converte string do cache em json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mapeia saida com cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL": {
+      "main": [
+        [
+          {
+            "node": "Pega contato em cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte resposta em JSON": {
+      "main": [
+        [
+          {
+            "node": "Switch entre user e backend",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Converte resposta em JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "Baixa o audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa o audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida do audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo usuario2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida do audio": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo usuario2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida sem cache": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida da autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida com cache": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida da autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida da autenticação": {
       "main": [
         [
           {
@@ -1927,59 +2683,119 @@
         ]
       ]
     },
-    "Switch1": {
+    "Wait": {
       "main": [
         [
           {
-            "node": "Pegar no cache dados da ordem",
+            "node": "Pega lista de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Agrupa mensagens",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
+            "node": "Ignora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem na lista de mensagens": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega lista de mensagens": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agrupa mensagens": {
+      "main": [
+        [
+          {
+            "node": "Deleta lista de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deleta lista de mensagens": {
+      "main": [
+        [
+          {
             "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "URL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Salva wa_id para erros",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "Send message3",
+            "node": "No Operation, do nothing",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send message3": {
+    "Error Trigger": {
       "main": [
         [
           {
-            "node": "Salva mensagem enviada pelo bot2",
+            "node": "Pega wa_id",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Redis Chat Memory": {
-      "ai_memory": [
+    "Pega wa_id": {
+      "main": [
         [
           {
-            "node": "AI Agent",
-            "type": "ai_memory",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
+            "node": "Send message1",
+            "type": "main",
             "index": 0
           }
         ]
@@ -1989,6 +2805,6 @@
   "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "ef4552418c534589f5b1f8104dde30593118c0a3efe4268b8dfd805304d2d91e"
+    "instanceId": "312d2d7b545483d7ddc7ee7fafd6abf3b0e147df6a7714eac25f75258f1a7f58"
   }
 }
