@@ -19,6 +19,7 @@ import { OrderForm } from '@/components/forms/orderForm'
 export function ServiceOrdersTable() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState([])
+  const [user, setUser] = useState({})
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -38,6 +39,7 @@ export function ServiceOrdersTable() {
     const json = await res.json()
 
     setData(json.data)
+    setUser(json.user)
     setPagination(json.pagination)
     setLoading(false)
   }
@@ -55,6 +57,7 @@ export function ServiceOrdersTable() {
   const cols = baseColumns({
     onEdit: (row) => openEdit(row),
     onDelete: (row) => remove(row),
+    user,
   })
 
   return (

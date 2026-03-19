@@ -247,14 +247,14 @@ export function OrderForm({ defaultValues, onSubmit, onCancel }) {
               </FormItem>
             )}
           />
-        </ScrollArea>
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancelar
-          </Button>
+          <div className="mt-4 flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancelar
+            </Button>
 
-          <Button type="submit">Salvar</Button>
-        </div>
+            <Button type="submit">Salvar</Button>
+          </div>
+        </ScrollArea>
       </form>
     </Form>
   )

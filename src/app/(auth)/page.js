@@ -51,8 +51,10 @@ export default function DashboardPage() {
   const recentOrders =
     data?.orders?.map((o) => ({
       number: o.number ?? o.id,
-      client: o.contact?.name ?? 'Cliente',
-      vehicle: o.vehicle ?? '-',
+      clientName: o.clientName ?? 'Cliente',
+      vehicleBrand: o.vehicleBrand ?? '-',
+      vehicleModel: o.vehicleModel ?? '-',
+      vehicleYear: o.vehicleYear ?? '-',
       status: o.status,
       createdAt: new Date(o.createdAt).toLocaleString('pt-BR'),
     })) ?? []
@@ -166,10 +168,11 @@ export default function DashboardPage() {
                 >
                   <div>
                     <p className="font-medium">
-                      OS #{order.number} — {order.client}
+                      OS #{order.number} — {order.clientName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {order.vehicle} • {order.createdAt}
+                      {order.vehicleBrand} {order.vehicleModel}(
+                      {order.vehicleYear}) • {order.createdAt}
                     </p>
                   </div>
 

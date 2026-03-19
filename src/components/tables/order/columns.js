@@ -16,7 +16,7 @@ const STATUS_LABEL = {
   4: 'Cancelada',
 }
 
-export const columns = ({ onEdit, onDelete }) => [
+export const columns = ({ onEdit, onDelete, user }) => [
   {
     accessorKey: 'number',
     header: 'OS',
@@ -84,24 +84,26 @@ export const columns = ({ onEdit, onDelete }) => [
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <DeleteDialog
-                    buttonTrigger={
-                      <Button variant="destructive">
-                        <Trash2 className="w-6 h-6" />
-                      </Button>
-                    }
-                    description={`Deseja deletar a ordem de serviço #${item.number}?`}
-                    onClick={() => onDelete(item)}
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Excluir</p>
-              </TooltipContent>
-            </Tooltip>
+            {(user?.role === 'su' || user?.role === 'admin') && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <DeleteDialog
+                      buttonTrigger={
+                        <Button variant="destructive">
+                          <Trash2 className="w-6 h-6" />
+                        </Button>
+                      }
+                      description={`Deseja deletar a ordem de serviço #${item.number}?`}
+                      onClick={() => onDelete(item)}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Excluir</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </TooltipProvider>
       )
