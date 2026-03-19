@@ -83,7 +83,7 @@ export async function GET(req, { params }) {
       orderBy: sortMap[sortField] ?? { createdAt: 'desc' },
     })
 
-    return NextResponse.json({ data: { orders } }, { status: 200 })
+    return NextResponse.json(orders, { status: 200 })
   } catch (error) {
     console.error('LIST_SERVICE_ORDERS_ERROR', error)
 

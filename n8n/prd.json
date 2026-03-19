@@ -1,0 +1,1578 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        6528,
+        2528
+      ],
+      "id": "71152630-df09-4adb-a249-65f765982de9",
+      "name": "WhatsApp Trigger",
+      "webhookId": "cf502643-ac7b-4a3e-b9aa-e662891b82a4",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "2kN2obKfkKvNgY4N",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst contact = JSON.parse(items[0].json.contact);\n\nreturn [\n  {\n    json: {\n      contact\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7424,
+        2528
+      ],
+      "id": "d353c3f6-526c-4a3d-8852-974a42eadd6f",
+      "name": "Converte string do cache em json"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "contact",
+        "key": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        7200,
+        2528
+      ],
+      "id": "2ad5abbf-c97a-4e10-8baa-fdd354ab99b0",
+      "name": "Pega contato em cache",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ebbbb1fb-4e57-4296-89c6-5a4353f26752",
+              "leftValue": "={{ $json.contact.token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        7648,
+        2528
+      ],
+      "id": "072cd952-8f63-4955-ae72-c1405843edd0",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dbd32109-3901-440a-9e5e-f47226e380f9",
+              "name": "url",
+              "value": "https://osupflow.moreiracode.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6976,
+        2528
+      ],
+      "id": "7fefd485-6be2-4a10-9e2b-5bafb925eaf7",
+      "name": "URL"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        6976,
+        2720
+      ],
+      "id": "472a1849-ad0d-4126-966f-e5e2ae6468bc",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "wa_id_error",
+        "value": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        6976,
+        2336
+      ],
+      "id": "75b80753-1126-45c9-9380-c7fbdf8fcd90",
+      "name": "Salva wa_id para erros",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b7c3e1bc-512f-48ec-b239-fefbd2375a01",
+              "leftValue": "={{ $json.messages }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        6752,
+        2528
+      ],
+      "id": "1eced502-b8f6-4073-9b07-b3956f30f098",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        6528,
+        2944
+      ],
+      "id": "a8779824-c658-4a93-bf93-d025ecc2d544",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "wa_id",
+        "key": "wa_id_error",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        6752,
+        2944
+      ],
+      "id": "6c7f3b36-c77d-4a21-9357-a3d82f5e2bd1",
+      "name": "Pega wa_id",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "db54980e-d353-42f3-b6aa-1024e47cc6e2",
+                    "leftValue": "={{ $('WhatsApp Trigger').first().json.messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1ec818c5-17ea-4b16-bfe1-f018cb11d2b6",
+                    "leftValue": "={{ $('WhatsApp Trigger').first().json.messages[0].type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        9216,
+        2624
+      ],
+      "id": "a579eb30-9309-4677-aa6c-c292de518fc9",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db62fc09-6523-48fc-b3a1-0986f9448b88",
+              "name": "=token",
+              "value": "={{ $('Converte string do cache em json').item.json.contact.token }}",
+              "type": "string"
+            },
+            {
+              "id": "a020bb75-5bc1-4d7d-bb34-4612512c60d9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "16b45a79-b72e-4034-aff5-5c9cd2f85d4b",
+              "name": "contactId",
+              "value": "={{ $('Converte string do cache em json').item.json.contact.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8768,
+        2720
+      ],
+      "id": "883362df-7150-4463-979c-9432b9730f3e",
+      "name": "Mapeia saida com cache"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db62fc09-6523-48fc-b3a1-0986f9448b88",
+              "name": "=token",
+              "value": "={{ $json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "a020bb75-5bc1-4d7d-bb34-4612512c60d9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "16b45a79-b72e-4034-aff5-5c9cd2f85d4b",
+              "name": "contactId",
+              "value": "={{ $json.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8992,
+        2624
+      ],
+      "id": "bf01d88d-3b44-41d2-b05c-92b2e0fdce1a",
+      "name": "Mapeia saida da autenticação"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae1d93b9-d00a-4115-a2ac-5876ed210c4c",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "90ef412c-eef5-412a-a937-737fb55be3a9",
+              "name": "token",
+              "value": "={{ $json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "dabfb4be-a830-4983-a205-16aacec26bbe",
+              "name": "contactId",
+              "value": "={{ $json.contactId }}",
+              "type": "string"
+            },
+            {
+              "id": "f8bf0198-59f9-42bc-9b0b-fa6882d93057",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10336,
+        2624
+      ],
+      "id": "3f4d18b1-7b9b-467d-b252-a430da35e581",
+      "name": "Mapeia saida"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        11008,
+        2624
+      ],
+      "id": "21f164bf-cd83-4568-92fb-251013332502",
+      "name": "Wait",
+      "webhookId": "14be1bad-0872-4de5-8cce-91b17575a211"
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "=list-{{ $json.contactId }}",
+        "messageData": "={{ $json.content }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        10784,
+        2624
+      ],
+      "id": "43c29ba9-5275-4c1b-8505-89ed1de3007f",
+      "name": "Salva mensagem na lista de mensagens",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "messages",
+        "key": "=list-{{ $json.contactId }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        11232,
+        2624
+      ],
+      "id": "c1e24980-7eb2-4f87-b6ea-02561aaeb855",
+      "name": "Pega lista de mensagens",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a749dc3b-6343-440c-af54-f53fa64651bf",
+              "leftValue": "={{ $json.messages.last() }}",
+              "rightValue": "={{ $('Wait').item.json.content }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        11456,
+        2624
+      ],
+      "id": "f90d04ab-a1b9-4286-aedf-f607e8b41f52",
+      "name": "If3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        11680,
+        2720
+      ],
+      "id": "42c43415-0292-438d-8a0c-d647884f3d47",
+      "name": "Ignora"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2b78aba-aa58-4bbd-a9bb-8eb9a52d7294",
+              "name": "message",
+              "value": "={{ $json.messages.join(\" \") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        11680,
+        2528
+      ],
+      "id": "ffde38c3-1a15-44ce-918d-2372fa5868c1",
+      "name": "Agrupa mensagens"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=list-{{ $('Wait').item.json.contactId }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        11904,
+        2528
+      ],
+      "id": "56eacae0-64cd-4d74-aef4-e5dbf4310250",
+      "name": "Deleta lista de mensagens",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "out"
+            },
+            {
+              "name": "type",
+              "value": "text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        10560,
+        2624
+      ],
+      "id": "92559833-325e-4fdb-98f5-00812a371095",
+      "name": "Salva mensagem enviada pelo usuario"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        9440,
+        2720
+      ],
+      "id": "f2e346b2-949a-4b21-a10b-4789841e9f9c",
+      "name": "Download media",
+      "webhookId": "71abe05d-610c-4cce-b710-2576ceba3da4",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "D3XZl8fZlKyJjxOO",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        9664,
+        2720
+      ],
+      "id": "7012af49-25df-414f-b7ee-9de36ecca552",
+      "name": "Baixa o audio",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "D3XZl8fZlKyJjxOO",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "pt"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        9888,
+        2720
+      ],
+      "id": "0ab4dffa-d1c1-44c2-be1a-a995a26f6c72",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "laEzeyAUmWpyvhZp",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae1d93b9-d00a-4115-a2ac-5876ed210c4c",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "90ef412c-eef5-412a-a937-737fb55be3a9",
+              "name": "token",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "dabfb4be-a830-4983-a205-16aacec26bbe",
+              "name": "contactId",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10112,
+        2720
+      ],
+      "id": "ddadcbff-dff6-4e13-bd5f-60a9661a5d43",
+      "name": "Mapeia saida do audio"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $json.wa_id }}",
+        "textBody": "Identificamos uma instabilidade temporária no sistema. Nossa equipe já está trabalhando para normalizar o serviço. Por favor, tente novamente mais tarde.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        6976,
+        2944
+      ],
+      "id": "050b5d77-48dd-4716-bb8b-752b9df3befa",
+      "name": "Send message error",
+      "webhookId": "3ae0b379-5acc-4230-9201-1dfa937b12fd",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "D3XZl8fZlKyJjxOO",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "Este número não está cadastrado no sistema. Por favor, solicite ao responsável pelo sistema que realize o cadastro para continuar.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        8544,
+        2336
+      ],
+      "id": "62761d3a-9dca-4ef7-87db-c63eb02a4fe5",
+      "name": "Send message number error",
+      "webhookId": "3ae0b379-5acc-4230-9201-1dfa937b12fd",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "D3XZl8fZlKyJjxOO",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "971608699376307",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        12848,
+        2528
+      ],
+      "id": "04e4e10a-c394-4138-bcb6-040e02ca428a",
+      "name": "Send message",
+      "webhookId": "3ae0b379-5acc-4230-9201-1dfa937b12fd",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "D3XZl8fZlKyJjxOO",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/message",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida da autenticação').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contactId",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}"
+            },
+            {
+              "name": "direction",
+              "value": "in"
+            },
+            {
+              "name": "type",
+              "value": "=text"
+            },
+            {
+              "name": "content",
+              "value": "={{ $('AI Agent').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        13072,
+        2528
+      ],
+      "id": "9aa5f249-d53e-4003-9709-2a670be79bc9",
+      "name": "Salva mensagem enviada pelo bot"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae1d93b9-d00a-4115-a2ac-5876ed210c4c",
+              "name": "text",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+              "type": "string"
+            },
+            {
+              "id": "90ef412c-eef5-412a-a937-737fb55be3a9",
+              "name": "token",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "dabfb4be-a830-4983-a205-16aacec26bbe",
+              "name": "contactId",
+              "value": "={{ $('Mapeia saida da autenticação').item.json.contactId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        10112,
+        2528
+      ],
+      "id": "3b046354-6c30-4ce7-bfbc-1041a6234d40",
+      "name": "Mapeia saida do texto"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('URL').item.json.url }}/api/auth/sign-in/email",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "bot@osupflow.com"
+            },
+            {
+              "name": "password",
+              "value": "8V292fC56xJ0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7872,
+        2432
+      ],
+      "id": "3aa8f083-cd94-4052-8e4f-ce1881b13757",
+      "name": "Autenticação"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('URL').item.json.url }}/api/n8n/contact/{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id.replace(/^55/, \"\") }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        8096,
+        2432
+      ],
+      "id": "04cfee16-5763-4363-af40-608a42990400",
+      "name": "Busca contato",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "value": "={\n  \"token\": \"{{ $('Autenticação').item.json.token }}\",\n  \"contactId\": \"{{ $json.id }}\"\n}",
+        "expire": true,
+        "ttl": 3600
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        8544,
+        2528
+      ],
+      "id": "d9ab3484-9c84-4439-b250-db13a5ea2533",
+      "name": "Salva contato em cache",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "db62fc09-6523-48fc-b3a1-0986f9448b88",
+              "name": "=token",
+              "value": "={{ $('Autenticação').item.json.token }}",
+              "type": "string"
+            },
+            {
+              "id": "a020bb75-5bc1-4d7d-bb34-4612512c60d9",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "16b45a79-b72e-4034-aff5-5c9cd2f85d4b",
+              "name": "contactId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8768,
+        2528
+      ],
+      "id": "09bf2c20-d6c7-4298-8ced-951fdc95bb3f",
+      "name": "Mapeia saida sem cache"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0927dece-d6d2-46b4-b925-1a43ea237ffe",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "={{ 0 }}",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        8320,
+        2432
+      ],
+      "id": "bccb1dab-4c7e-4abd-b771-bfdfab01e834",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        12128,
+        2752
+      ],
+      "id": "d8b2b33c-3fcd-4984-b5e2-dba8744c99ec",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "2a2I0D8wf2kDO7jg",
+          "name": "OS Upflow OpenAi dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message }}",
+        "options": {
+          "systemMessage": "=## Assistente OS Upflow\n\nVocê é o assistente do **OS Upflow**, um sistema de gestão de ordens de serviço para oficinas.\nSua função é ajudar o usuário a interagir com ordens de serviço através de conversa.\n\n---\n\n### Uso de ferramentas (tools)\n\nUtilize tools sempre que necessário para executar ações:\n\n- Criar ordem de serviço  \n- Consultar ordens de serviço  \n- Atualizar ordens de serviço  \n\n---\n\n### Regras gerais\n\n- Nunca inventar dados  \n- Nunca assumir informações não fornecidas  \n- Quando faltar informação, perguntar ao usuário antes de usar qualquer tool  \n- Executar apenas o que o usuário solicitar  \n- Não sugerir ações ou próximos passos  \n- Ser direto e objetivo  \n\n---\n\n### Tomada de decisão\n\n- Se a intenção do usuário for clara → chamar a tool apropriada  \n- Se faltar informação → solicitar ao usuário  \n- Se a ação não for clara → responder normalmente (sem usar tool)  \n- Se for conversa comum → responder normalmente (sem usar tool)  \n\n---\n\n### Prioridade\n\n- Sempre priorizar o uso das tools para ações reais  \n- Não depender de memória quando uma tool puder ser utilizada  \n- Garantir que as respostas reflitam dados reais retornados pelas tools  \n\n---\n\n### Comportamento esperado\n\n- Agir como um sistema operacional, não como um assistente opinativo  \n- Não explicar regras internas  \n- Não justificar decisões  \n- Apenas executar ou solicitar informações quando necessário  "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        12312,
+        2528
+      ],
+      "id": "c699df69-0bd4-420a-ab65-d1b861d0d210",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=## Criação de Ordem de Serviço\n\nUse esta tool quando o usuário quiser:\n- criar uma nova ordem de serviço\n- abrir uma OS\n- registrar um novo serviço\n\n### Campos obrigatórios\n- `client`: nome do cliente  \n- `vehicle`: veículo  \n- `description`: descrição do serviço  \n\n### Regras importantes\n- NUNCA criar a ordem sem confirmação do usuário  \n- Se faltar qualquer campo, solicitar ao usuário antes de prosseguir  \n- NÃO inventar dados  \n- Usar exatamente as informações fornecidas pelo usuário  \n\n### Fluxo obrigatório\n\n1. Coletar todos os dados necessários  \n2. Exibir o resumo para confirmação  \n3. Perguntar algo como: **\"Confirma a criação da ordem?\"**  \n4. Só após confirmação, chamar a tool  \n\n### Resumo para confirmação (obrigatório)\n👤 Cliente: {{ json.client }}  \n🚗 Veículo: {{ json.vehicle }}  \n🛠️ Serviço: {{ json.description }}  \n\n\n### Regras de saída\n- Nunca pular a etapa de confirmação  \n- Nunca criar sem resposta explícita do usuário  \n- Manter exatamente o formato do resumo  \n",
+        "method": "POST",
+        "url": "={{ $('URL').first().json.url }}/api/n8n/order/{{ $('Mapeia saida').item.json.contactId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        12384,
+        2752
+      ],
+      "id": "6ecd0b27-f278-4573-b110-ce92c81443e0",
+      "name": "create_order"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=## Consulta de Ordens de Serviço\n\nUse esta tool quando o usuário quiser:\n- listar ordens\n- buscar ordens\n- consultar uma ordem específica\n- verificar status de ordens\n\n### Filtros opcionais\nUse apenas se o usuário informar:\n- `number`: número da ordem  \n- `status`:  \n  - 1 = aberta  \n  - 2 = em andamento  \n  - 3 = concluída  \n  - 4 = cancelada  \n- `client`: nome do cliente  \n- `vehicle`: veículo  \n\n### Regras importantes\n- NÃO inventar filtros  \n- NÃO enviar campos vazios  \n- Se nenhum filtro for informado, retornar todas as ordens  \n- Combinar filtros apenas quando fizer sentido  \n\n### Formatação da resposta (obrigatória)\n\nPara cada ordem retornada, exibir:  \n```\n🔢 Número: {{ json.number }}  \n📌 Situação: {{\n  { \n    1: 'Aberta', \n    2: 'Em andamento', \n    3: 'Concluída', \n    4: 'Cancelada' \n  }[json.status] || 'Desconhecida'\n}}  \n👤 Cliente: {{ json.client }}  \n🚗 Veículo: {{ json.vehicle }}  \n🛠️ Serviço: {{ json.description }}  \n📅 Criada em: {{\n  new Date(json.createdAt).toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit'\n  }).replace(',', ' -')\n}}   \n```\n\n### Regras de saída\n- Sempre listar TODAS as ordens retornadas  \n- Nunca resumir ou omitir resultados  \n- Manter exatamente esse formato  \n",
+        "url": "={{ $('URL').first().json.url }}/api/n8n/order/{{ $('Mapeia saida').item.json.contactId }}",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"number\": \"{{ $json.number }}\",\n  \"status\": \"{{ $json.status }}\",\n  \"client\": \"{{ $json.client }}\"\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida').item.json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        12512,
+        2752
+      ],
+      "id": "90f595cc-e85f-42b9-aa5a-9ca7809e7d42",
+      "name": "read_order",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "toolDescription": "=## Atualização de Ordem de Serviço\n\nUse esta tool quando o usuário quiser:\n- atualizar uma ordem\n- modificar informações da ordem\n- alterar status da ordem\n- encerrar uma ordem\n- cancelar uma ordem\n- editar cliente, veículo ou descrição\n\n### Campos disponíveis\n- `number` (obrigatório): número da ordem  \n- `status`:  \n  - 1 = aberta  \n  - 2 = em andamento  \n  - 3 = concluída  \n  - 4 = cancelada  \n- `client`: nome do cliente  \n- `vehicle`: veículo  \n- `description`: descrição do serviço  \n\n### Regras importantes\n- `number` é sempre obrigatório  \n- NÃO executar a ação sem o número da ordem  \n- Atualizar apenas os campos mencionados pelo usuário  \n- NÃO inventar dados  \n- NÃO sobrescrever campos não informados  \n- SEMPRE solicitar confirmação antes de atualizar  \n\n### Fluxo obrigatório\n\n1. Verificar se o `number` foi informado  \n2. Se não foi, solicitar ao usuário  \n3. Identificar os campos que serão atualizados  \n4. Exibir resumo da atualização  \n5. Perguntar: **\"Confirma a atualização da ordem?\"**  \n6. Só após confirmação, executar a tool  \n\n### Resumo para confirmação (obrigatório)\n🔢 Número: {{ json.number }}  \n{{ #if json.status }}📌 Status: {{ json.status }} {{ /if }}  \n{{ #if json.client }}👤 Cliente: {{ json.client }} {{ /if }}  \n{{ #if json.vehicle }}🚗 Veículo: {{ json.vehicle }} {{ /if }}  \n{{ #if json.description }}🛠️ Serviço: {{ json.description }} {{ /if }}  \n\n### Regras de saída\n- Nunca executar sem confirmação explícita do usuário  \n- Enviar apenas os campos que serão atualizados  \n- Garantir que o `number` esteja presente na requisição  \n- Manter exatamente o formato do resumo  \n",
+        "method": "PATCH",
+        "url": "={{ $('URL').first().json.url }}/api/n8n/order/{{ $('Mapeia saida').item.json.contactId }}/{{ $json.number }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida').item.json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        12640,
+        2752
+      ],
+      "id": "84a143d4-cc59-43f9-9f6e-60f120685edc",
+      "name": "update_order",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=openIA-{{ $json.contactId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
+      "typeVersion": 1.5,
+      "position": [
+        12256,
+        2752
+      ],
+      "id": "d055590d-d5da-4fc8-af2c-070ec3037d61",
+      "name": "Redis Chat Memory",
+      "credentials": {
+        "redis": {
+          "id": "8UiidfP9SlTPVZIw",
+          "name": "OS Upflow Redis PRD"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Converte string do cache em json": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega contato em cache": {
+      "main": [
+        [
+          {
+            "node": "Converte string do cache em json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mapeia saida com cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "URL": {
+      "main": [
+        [
+          {
+            "node": "Pega contato em cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "URL",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Salva wa_id para erros",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pega wa_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega wa_id": {
+      "main": [
+        [
+          {
+            "node": "Send message error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida do texto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida com cache": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida da autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida da autenticação": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Pega lista de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem na lista de mensagens": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pega lista de mensagens": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Agrupa mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agrupa mensagens": {
+      "main": [
+        [
+          {
+            "node": "Deleta lista de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deleta lista de mensagens": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva mensagem enviada pelo usuario": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem na lista de mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "Baixa o audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa o audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida do audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida do audio": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        [
+          {
+            "node": "Salva mensagem enviada pelo bot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida do texto": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Autenticação": {
+      "main": [
+        [
+          {
+            "node": "Busca contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca contato": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Salva contato em cache": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida sem cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeia saida sem cache": {
+      "main": [
+        [
+          {
+            "node": "Mapeia saida da autenticação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send message number error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Salva contato em cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read_order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7b5c3f935d9d03d02d3024aa3bee7513f880b872fe648a5085d2d733cd52cbcc"
+  }
+}
