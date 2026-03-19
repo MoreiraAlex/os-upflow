@@ -1020,7 +1020,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        12312,
+        12320,
         2528
       ],
       "id": "c699df69-0bd4-420a-ab65-d1b861d0d210",

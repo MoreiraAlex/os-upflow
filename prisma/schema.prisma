@@ -19,7 +19,6 @@ model Contact {
 
   messages   Message[]
 
-  // @@unique([workshopId, phone])
   @@map("contact")
 }
 
@@ -55,13 +54,14 @@ model Workshop {
   zipCode     String?  
   createdAt   DateTime @default(now())
 
-  contacts    Contact[]
   users       User[]
+  contacts    Contact[]
   orders      ServiceOrder[]
+  // clients     Client[]
+  // vehicles    Vehicle[]
 
   @@map("workshop")
 }
-
 
 
 model User {
@@ -86,6 +86,7 @@ model User {
   @@map("user")
 }
 
+
 model Session {
   id    String    @id @default(cuid()) @map("_id")
   expiresAt DateTime
@@ -101,6 +102,7 @@ model Session {
   @@index([userId])
   @@map("session")
 }
+
 
 model Account {
   id    String    @id @default(cuid()) @map("_id")
@@ -122,6 +124,7 @@ model Account {
   @@map("account")
 }
 
+
 model Verification {
   id    String    @id @default(cuid()) @map("_id")
   identifier String
@@ -139,9 +142,18 @@ model ServiceOrder {
   id          String   @id @default(cuid()) @map("_id")
   number      Int      
   status      String
-  client      String
-  vehicle     String
   description String
+
+  clientName       String
+  clientCPF        String
+  clientPhone      String
+
+  vehicleModel     String
+  vehicleBrand     String
+  vehicleYear      Int
+  vehiclePlate     String
+  vehicleType      String
+  vehicleEngine    String
 
   workshopId  String
   workshop    Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
@@ -153,6 +165,80 @@ model ServiceOrder {
   @@unique([workshopId, number])
   @@map("serviceOrder")
 }
+
+
+// model ServiceOrder {
+//   id                 String   @id @default(cuid()) @map("_id")
+//   number             Int 
+//   status             String
+//   description        String
+
+//   clientId           String
+//   client             Client @relation(fields: [clientId], references: [id], onDelete: Cascade)  
+
+//   vehicleId          String
+//   vehicle            Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+//   workshopId         String
+//   workshop           Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+//   createdAt          DateTime @default(now())
+//   updatedAt          DateTime @updatedAt
+
+//   @@index([workshopId])
+//   @@unique([workshopId, number])
+//   @@map("serviceOrder")
+// }
+
+
+// model Client {
+//   id         String   @id @default(cuid()) @map("_id")
+      
+//   name       String
+//   cpf        String
+//   phone      String
+       
+//   createdAt  DateTime @default(now())
+//   updatedAt  DateTime @updatedAt
+
+//   workshopId String
+//   workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+//   orders     ServiceOrder[]
+//   vehicles   Vehicle[]
+
+//   @@index([workshopId])
+//   @@unique([workshopId, cpf])
+//   @@map("client")
+// }
+
+
+// model Vehicle {
+//   id        String   @id @default(cuid()) @map("_id")
+
+//   model     String
+//   brand     String
+//   year      Int
+//   plate     String
+//   type      String
+//   engine    String
+
+//   clientId  String
+//   client    Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+//   workshopId String
+//   workshop   Workshop @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+
+//   orders ServiceOrder[]
+
+//   @@index([workshopId, clientId])
+//   @@unique([workshopId, clientId, plate])
+//   @@map("vehicle")
+// }
+
 
 model Invite {
   id        String   @id @default(cuid()) @map("_id")

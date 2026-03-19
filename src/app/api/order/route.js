@@ -5,30 +5,16 @@ import { headers } from 'next/headers'
 
 export async function GET(req) {
   try {
-    let userId = ''
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      const authHeader = req.headers.get('authorization')
-      const sessionBearer = await auth.api.getSession({
-        headers: {
-          authorization: authHeader,
-        },
-      })
-
-      if (!sessionBearer?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-
-      userId = sessionBearer.user.id
-    } else {
-      userId = session.user.id
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: session.user.id },
       select: { workshopId: true },
     })
 
@@ -47,32 +33,31 @@ export async function GET(req) {
     const search = params.search || ''
     const sortParam = params.sort || 'createdAt:desc'
 
-    delete params.page
-    delete params.pageSize
-    delete params.limit
-    delete params.search
-    delete params.sort
-
     const filters = []
     filters.push({
       workshopId: user.workshopId,
     })
 
     if (search) {
+      // ToDo: Filtrar por data
       const parsedNumber = Number(search)
       const isNumberSearch = !isNaN(parsedNumber)
 
       const orFilters = [
         { status: { contains: search, mode: 'insensitive' } },
-        { client: { contains: search, mode: 'insensitive' } },
-        { vehicle: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { clientName: { contains: search, mode: 'insensitive' } },
+        { clientCPF: { contains: search } },
+        { clientPhone: { contains: search } },
+        { vehicleModel: { contains: search, mode: 'insensitive' } },
+        { vehicleBrand: { contains: search, mode: 'insensitive' } },
+        { vehiclePlate: { contains: search, mode: 'insensitive' } },
+        { vehicleType: { contains: search, mode: 'insensitive' } },
+        { vehicleEngine: { contains: search, mode: 'insensitive' } },
       ]
 
       if (isNumberSearch) {
-        orFilters.push({
-          number: parsedNumber,
-        })
+        orFilters.push({ number: parsedNumber }, { vehicleYear: parsedNumber })
       }
 
       filters.push({
@@ -80,45 +65,23 @@ export async function GET(req) {
       })
     }
 
-    const filterConfig = {
-      number: 'number',
-      status: 'string',
-      client: 'string',
-      vehicle: 'string',
-      description: 'string',
-    }
-
-    Object.entries(params).forEach(([field, value]) => {
-      if (!value) return
-      if (!filterConfig[field]) return
-
-      if (filterConfig[field] === 'number') {
-        const parsed = Number(value)
-        if (!isNaN(parsed)) {
-          filters.push({ [field]: parsed })
-        }
-      }
-
-      if (filterConfig[field] === 'string') {
-        filters.push({
-          [field]: {
-            contains: value,
-            mode: 'insensitive',
-          },
-        })
-      }
-    })
-
     const where = filters.length ? { AND: filters } : {}
 
     const [sortField, sortOrder] = sortParam.split(':')
     const sortMap = {
       number: { number: sortOrder },
       status: { status: sortOrder },
-      client: { client: sortOrder },
-      vehicle: { vehicle: sortOrder },
       description: { description: sortOrder },
       createdAt: { createdAt: sortOrder },
+      clientName: { clientName: sortOrder },
+      clientCPF: { clientCPF: sortOrder },
+      clientPhone: { clientPhone: sortOrder },
+      vehicleModel: { vehicleModel: sortOrder },
+      vehicleBrand: { vehicleBrand: sortOrder },
+      vehicleYear: { vehicleYear: sortOrder },
+      vehiclePlate: { vehiclePlate: sortOrder },
+      vehicleType: { vehicleType: sortOrder },
+      vehicleEngine: { vehicleEngine: sortOrder },
     }
 
     const data = await prisma.serviceOrder.findMany({
@@ -155,30 +118,16 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    let userId = ''
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      const authHeader = req.headers.get('authorization')
-      const sessionBearer = await auth.api.getSession({
-        headers: {
-          authorization: authHeader,
-        },
-      })
-
-      if (!sessionBearer?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-
-      userId = sessionBearer.user.id
-    } else {
-      userId = session.user.id
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: session.user.id },
       select: { workshopId: true },
     })
 
@@ -190,11 +139,34 @@ export async function POST(req) {
     }
 
     const body = await req.json()
-    const { client, vehicle, description, status } = body
+    const {
+      status,
+      description,
+      clientName,
+      clientCPF,
+      clientPhone,
+      vehicleModel,
+      vehicleBrand,
+      vehicleYear,
+      vehiclePlate,
+      vehicleType,
+      vehicleEngine,
+    } = body
 
-    if (!vehicle || !description) {
+    if (
+      !description ||
+      !clientName ||
+      !clientCPF ||
+      !clientPhone ||
+      !vehicleModel ||
+      !vehicleBrand ||
+      !vehicleYear ||
+      !vehiclePlate ||
+      !vehicleType ||
+      !vehicleEngine
+    ) {
       return NextResponse.json(
-        { error: 'Vehicle and description are required' },
+        { error: 'required fields missing' },
         { status: 400 },
       )
     }
@@ -210,9 +182,16 @@ export async function POST(req) {
       data: {
         number: nextNumber,
         status: status || '1',
-        client,
-        vehicle,
         description,
+        clientName,
+        clientCPF,
+        clientPhone,
+        vehicleModel,
+        vehicleBrand,
+        vehicleYear: Number(vehicleYear),
+        vehiclePlate,
+        vehicleType,
+        vehicleEngine,
         workshopId: user.workshopId,
       },
     })

@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { headers } from 'next/headers'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export default async function ServiceOrderDetailPage({ params }) {
   const incomingHeaders = headers()
@@ -36,9 +38,14 @@ export default async function ServiceOrderDetailPage({ params }) {
           </p>
         </div>
 
-        <Badge variant="secondary">
-          {STATUS_LABEL[order.status] ?? 'Desconhecido'}
-        </Badge>
+        <div className="flex flex-col justify-center items-center gap-2 md:flex-row-reverse">
+          <Link href="/order">
+            <Button variant="outline">← Voltar</Button>
+          </Link>
+          <Badge variant="secondary">
+            {STATUS_LABEL[order.status] ?? 'Desconhecido'}
+          </Badge>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
@@ -48,17 +55,49 @@ export default async function ServiceOrderDetailPage({ params }) {
           </h2>
 
           <div>
-            <p className="text-sm text-muted-foreground">Cliente</p>
-            <p className="font-medium">{order.client || 'Não informado'}</p>
+            <p className="text-sm text-muted-foreground">Nome</p>
+            <p className="font-medium">{order.clientName || 'Não informado'}</p>
           </div>
 
           <div>
-            <p className="text-sm text-muted-foreground">Veículo</p>
-            <p className="font-medium">{order.vehicle}</p>
+            <p className="text-sm text-muted-foreground">CPF</p>
+            <p className="font-medium">{order.clientCPF || 'Não informado'}</p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Telefone</p>
+            <p className="font-medium">
+              {order.clientPhone || 'Não informado'}
+            </p>
           </div>
         </Card>
 
         <Card className="p-5 space-y-4">
+          <h2 className="text-lg font-semibold border-b pb-2">Veículo</h2>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Modelo</p>
+            <p className="font-medium">
+              {order.vehicleBrand} {order.vehicleModel} ({order.vehicleYear})
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Placa</p>
+            <p className="font-medium">
+              {order.vehiclePlate || 'Não informado'}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground">Detalhes</p>
+            <p className="font-medium">
+              {order.vehicleType} • {order.vehicleEngine}
+            </p>
+          </div>
+        </Card>
+
+        <Card className="p-5 space-y-4 md:col-span-2">
           <h2 className="text-lg font-semibold border-b pb-2">
             Detalhes do Serviço
           </h2>

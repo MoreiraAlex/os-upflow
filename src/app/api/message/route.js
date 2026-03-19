@@ -10,16 +10,7 @@ export async function GET(req) {
     })
 
     if (!session?.user?.id) {
-      const authHeader = req.headers.get('authorization')
-      const sessionBearer = await auth.api.getSession({
-        headers: {
-          authorization: authHeader,
-        },
-      })
-
-      if (!sessionBearer?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const { searchParams } = new URL(req.url)

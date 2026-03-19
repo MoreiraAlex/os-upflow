@@ -23,15 +23,6 @@ export const columns = ({ onEdit, onDelete }) => [
     cell: ({ row }) => `#${row.getValue('number')}`,
   },
   {
-    accessorKey: 'client',
-    header: 'Cliente',
-    cell: ({ row }) => row.getValue('client') || '—',
-  },
-  {
-    accessorKey: 'vehicle',
-    header: 'Veículo',
-  },
-  {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => STATUS_LABEL[row.getValue('status')] ?? '—',
@@ -41,6 +32,24 @@ export const columns = ({ onEdit, onDelete }) => [
     header: 'Criada em',
     accessorFn: (row) =>
       row.createdAt ? new Date(row.createdAt).toLocaleString('pt-BR') : '-',
+  },
+  {
+    accessorKey: 'clientName',
+    header: 'Cliente',
+    cell: ({ row }) => row.getValue('clientName') || '—',
+  },
+  {
+    accessorKey: 'clientCPF',
+    header: 'CPF',
+    cell: ({ row }) => row.getValue('clientCPF') || '—',
+  },
+  {
+    id: 'vehicle',
+    header: 'Veículo',
+    cell: ({ row }) => {
+      const item = row.original
+      return `${item.vehicleBrand} ${item.vehicleModel} (${item.vehicleYear})`
+    },
   },
   {
     id: 'actions',

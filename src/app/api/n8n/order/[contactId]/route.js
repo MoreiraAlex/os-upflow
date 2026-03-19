@@ -40,9 +40,17 @@ export async function GET(req, { params }) {
     const filterConfig = {
       number: 'number',
       status: 'string',
-      client: 'string',
-      vehicle: 'string',
       description: 'string',
+      createdAt: 'string',
+      clientName: 'string',
+      clientCPF: 'string',
+      clientPhone: 'string',
+      vehicleModel: 'string',
+      vehicleBrand: 'string',
+      vehicleYear: 'number',
+      vehiclePlate: 'string',
+      vehicleType: 'string',
+      vehicleEngine: 'string',
     }
 
     Object.entries(searchParams).forEach(([field, value]) => {
@@ -72,10 +80,17 @@ export async function GET(req, { params }) {
     const sortMap = {
       number: { number: sortOrder },
       status: { status: sortOrder },
-      client: { client: sortOrder },
-      vehicle: { vehicle: sortOrder },
       description: { description: sortOrder },
       createdAt: { createdAt: sortOrder },
+      clientName: { clientName: sortOrder },
+      clientCPF: { clientCPF: sortOrder },
+      clientPhone: { clientPhone: sortOrder },
+      vehicleModel: { vehicleModel: sortOrder },
+      vehicleBrand: { vehicleBrand: sortOrder },
+      vehicleYear: { vehicleYear: sortOrder },
+      vehiclePlate: { vehiclePlate: sortOrder },
+      vehicleType: { vehicleType: sortOrder },
+      vehicleEngine: { vehicleEngine: sortOrder },
     }
 
     const orders = await prisma.serviceOrder.findMany({
@@ -121,11 +136,34 @@ export async function POST(req, { params }) {
     }
 
     const body = await req.json()
-    const { client, vehicle, description, status } = body
+    const {
+      status,
+      description,
+      clientName,
+      clientCPF,
+      clientPhone,
+      vehicleModel,
+      vehicleBrand,
+      vehicleYear,
+      vehiclePlate,
+      vehicleType,
+      vehicleEngine,
+    } = body
 
-    if (!vehicle || !description) {
+    if (
+      !description ||
+      !clientName ||
+      !clientCPF ||
+      !clientPhone ||
+      !vehicleModel ||
+      !vehicleBrand ||
+      !vehicleYear ||
+      !vehiclePlate ||
+      !vehicleType ||
+      !vehicleEngine
+    ) {
       return NextResponse.json(
-        { error: 'Vehicle and description are required' },
+        { error: 'required fields missing' },
         { status: 400 },
       )
     }
@@ -141,9 +179,16 @@ export async function POST(req, { params }) {
       data: {
         number: nextNumber,
         status: status || '1',
-        client,
-        vehicle,
         description,
+        clientName,
+        clientCPF,
+        clientPhone,
+        vehicleModel,
+        vehicleBrand,
+        vehicleYear: Number(vehicleYear),
+        vehiclePlate,
+        vehicleType,
+        vehicleEngine,
         workshopId: contact.workshopId,
       },
     })

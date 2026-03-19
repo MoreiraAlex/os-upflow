@@ -5,30 +5,16 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(req, { params }) {
   try {
-    let userId = ''
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      const authHeader = req.headers.get('authorization')
-      const sessionBearer = await auth.api.getSession({
-        headers: {
-          authorization: authHeader,
-        },
-      })
-
-      if (!sessionBearer?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-
-      userId = sessionBearer.user.id
-    } else {
-      userId = session.user.id
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: session.user.id },
       select: { workshopId: true },
     })
 
@@ -67,30 +53,16 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
   try {
-    let userId = ''
     const session = await auth.api.getSession({
       headers: await headers(),
     })
 
     if (!session?.user?.id) {
-      const authHeader = req.headers.get('authorization')
-      const sessionBearer = await auth.api.getSession({
-        headers: {
-          authorization: authHeader,
-        },
-      })
-
-      if (!sessionBearer?.user?.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-      }
-
-      userId = sessionBearer.user.id
-    } else {
-      userId = session.user.id
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: session.user.id },
       select: { workshopId: true },
     })
 
@@ -103,9 +75,33 @@ export async function PATCH(req, { params }) {
 
     const { number } = await params
     const body = await req.json()
-    const { status, client, vehicle, description } = body
+    const {
+      status,
+      description,
+      clientName,
+      clientCPF,
+      clientPhone,
+      vehicleModel,
+      vehicleBrand,
+      vehicleYear,
+      vehiclePlate,
+      vehicleType,
+      vehicleEngine,
+    } = body
 
-    if (!status && !client && !vehicle && !description) {
+    if (
+      !status &&
+      !description &&
+      !clientName &&
+      !clientCPF &&
+      !clientPhone &&
+      !vehicleModel &&
+      !vehicleBrand &&
+      !vehicleYear &&
+      !vehiclePlate &&
+      !vehicleType &&
+      !vehicleEngine
+    ) {
       return NextResponse.json(
         { error: 'No fields to update' },
         { status: 400 },
@@ -135,9 +131,24 @@ export async function PATCH(req, { params }) {
       },
       data: {
         ...(status !== undefined && { status: String(status) }),
-        ...(client !== undefined && { client: String(client) }),
-        ...(vehicle !== undefined && { vehicle: String(vehicle) }),
         ...(description !== undefined && { description: String(description) }),
+        ...(clientName !== undefined && { clientName: String(clientName) }),
+        ...(clientCPF !== undefined && { clientCPF: String(clientCPF) }),
+        ...(clientPhone !== undefined && { clientPhone: String(clientPhone) }),
+        ...(vehicleModel !== undefined && {
+          vehicleModel: String(vehicleModel),
+        }),
+        ...(vehicleBrand !== undefined && {
+          vehicleBrand: String(vehicleBrand),
+        }),
+        ...(vehicleYear !== undefined && { vehicleYear: Number(vehicleYear) }),
+        ...(vehiclePlate !== undefined && {
+          vehiclePlate: String(vehiclePlate),
+        }),
+        ...(vehicleType !== undefined && { vehicleType: String(vehicleType) }),
+        ...(vehicleEngine !== undefined && {
+          vehicleEngine: String(vehicleEngine),
+        }),
       },
     })
 
