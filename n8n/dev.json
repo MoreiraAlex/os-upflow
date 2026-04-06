@@ -852,34 +852,6 @@
     },
     {
       "parameters": {
-        "toolDescription": "=## Consulta de Ordens de Serviço\n\nUse esta tool quando o usuário quiser:\n- listar ordens\n- buscar ordens\n- consultar uma ordem específica\n- verificar status de ordens\n\n### Filtros opcionais\nUse apenas se o usuário informar:\n- `number`: número da ordem  \n- `status`: situação do serviço\n  - 1 = aberta  \n  - 2 = em andamento  \n  - 3 = concluída  \n  - 4 = cancelada \n- `description`: descrição do serviço\n- `createdAt`: data de criação da ordem\n- `clientName`: nome do cliente\n- `clientCPF`: cpf do cliente\n- `clientPhone`: telefone do cliente\n- `vehicleModel`: modelo do veiculo\n- `vehicleBrand`: marca do veiculo\n- `vehicleYear`: ano do veiculo\n- `vehiclePlate`: placa do veiculo\n- `vehicleType`: tipo do veiculo\n  - carro\n  - moto\n- `vehicleEngine`: motorização do veiculo \n\n### Regras importantes\n- NÃO inventar filtros  \n- NÃO enviar campos vazios  \n- Se nenhum filtro for informado, retornar todas as ordens  \n- Combinar filtros apenas quando fizer sentido  \n\n### Formatação da resposta (obrigatória)\n\nPara cada ordem retornada, exibir:  \n```\n━━━━━━━━━━━━━━━\nOrdem #{{ json.number }}\n━━━━━━━━━━━━━━━\nSituação: {{\n  { \n    1: 'Aberta', \n    2: 'Em andamento', \n    3: 'Concluída', \n    4: 'Cancelada' \n  }[json.status] || 'Desconhecida'\n}}  \nServiço: {{ json.description }} \nCriada em: {{\n  new Date(json.createdAt).toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit'\n  }).replace(',', ' -')\n}}  \n\nCliente\n━━━━━━━━━━━━━━━\n{{ json.clientName }}  \nCPF: {{ json.clientCPF }}  \nTel: {{ json.clientPhone }} \n\nVeículo\n━━━━━━━━━━━━━━━\n{{ json.vehicleBrand }} {{ json.vehicleModel }} ({{ json.vehicleYear }})  \n{{ json.vehicleType }} • {{ json.vehicleEngine }}  \nPlaca: {{ json.vehiclePlate }}  \n```\n\n### Regras de saída\n- Sempre listar TODAS as ordens retornadas  \n- Nunca resumir ou omitir resultados  \n- Manter exatamente esse formato  \n",
-        "url": "={{ $('URL').first().json.url }}/api/n8n/order/{{ $('Mapeia saida').item.json.contactId }}",
-        "sendQuery": true,
-        "specifyQuery": "json",
-        "jsonQuery": "={\n  \"number\": \"{{ $json.number }}\",\n  \"status\": \"{{ $json.status }}\",\n  \"client\": \"{{ $json.client }}\"\n}",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "authorization",
-              "value": "=Bearer {{ $('Mapeia saida').item.json.token }}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequestTool",
-      "typeVersion": 4.4,
-      "position": [
-        3184,
-        384
-      ],
-      "id": "ed2df9d8-6790-4035-9395-8b2c7c8185ef",
-      "name": "read_order",
-      "notesInFlow": false
-    },
-    {
-      "parameters": {
         "toolDescription": "=## Atualização de Ordem de Serviço\n\nUse esta tool quando o usuário quiser:\n- atualizar uma ordem\n- modificar informações da ordem\n- alterar status da ordem\n- encerrar uma ordem\n- cancelar uma ordem\n- editar cliente, veículo ou descrição\n\n### Campos disponíveis\n- `number` (obrigatório): número da ordem  \n- `status`: situação do serviço\n  - 1 = aberta  \n  - 2 = em andamento  \n  - 3 = concluída  \n  - 4 = cancelada \n- `description`: descrição do serviço\n- `clientName`: nome do cliente\n- `clientCPF`: cpf do cliente\n- `clientPhone`: telefone do cliente\n- `vehicleModel`: modelo do veiculo\n- `vehicleBrand`: marca do veiculo\n- `vehicleYear`: ano do veiculo\n- `vehiclePlate`: placa do veiculo\n- `vehicleType`: tipo do veiculo\n  - carro\n  - moto\n- `vehicleEngine`: motorização do veiculo \n\n### Regras importantes\n- `number` é sempre obrigatório  \n- NÃO executar a ação sem o número da ordem  \n- Atualizar apenas os campos mencionados pelo usuário  \n- NÃO inventar dados  \n- NÃO sobrescrever campos não informados  \n- SEMPRE solicitar confirmação antes de atualizar  \n\n### Fluxo obrigatório\n\n1. Verificar se o `number` foi informado  \n2. Se não foi, solicitar ao usuário  \n3. Identificar os campos que serão atualizados  \n4. Exibir resumo da atualização  \n5. Perguntar: **\"Confirma a atualização da ordem?\"**  \n6. Só após confirmação, executar a tool  \n\n### Resumo para confirmação (obrigatório)\n```\n━━━━━━━━━━━━━━━\nOrdem #{{ json.number }}\n━━━━━━━━━━━━━━━\n{{ #if json.status }} Situação: {{ json.status }} {{ /if }}  \n{{ #if json.description }} Serviço: {{ json.description }} {{ /if }}  \n{{ #if json.clientName }} Cliente: {{ json.clientName }} {{ /if }}  \n{{ #if json.clientCPF }} CPF: {{ json.clientCPF }} {{ /if }}  \n{{ #if json.clientPhone }} Telefone: {{ json.clientPhone }} {{ /if }}  \n{{ #if json.vehicleModel }} Modelo: {{ json.vehicleModel }} {{ /if }}  \n{{ #if json.vehicleBrand }} Marca: {{ json.vehicleBrand }} {{ /if }}  \n{{ #if json.vehicleYear }} Ano: {{ json.vehicleYear }} {{ /if }}  \n{{ #if json.vehiclePlate }} Placa: {{ json.vehiclePlate }} {{ /if }}  \n{{ #if json.vehicleType }} Tipo: {{ json.vehicleType }} {{ /if }}  \n{{ #if json.vehicleEngine }} Motor: {{ json.vehicleEngine }} {{ /if }}  \n```\n\n### Regras de saída\n- Nunca executar sem confirmação explícita do usuário  \n- Enviar apenas os campos que serão atualizados  \n- Garantir que o `number` esteja presente na requisição  \n- Manter exatamente o formato do resumo  \n",
         "method": "PATCH",
         "url": "={{ $('URL').first().json.url }}/api/n8n/order/{{ $('Mapeia saida').item.json.contactId }}/{{ $json.number }}",
@@ -1074,6 +1046,34 @@
       ],
       "id": "3a69d752-0587-4f1d-97dc-0375041f776f",
       "name": "WhatsApp Trigger"
+    },
+    {
+      "parameters": {
+        "toolDescription": "=## Consulta de Ordens de Serviço\n\nUse esta tool quando o usuário quiser:\n- listar ordens\n- buscar ordens\n- consultar uma ordem específica\n- verificar status de ordens\n\n### Filtros opcionais\nUse apenas se o usuário informar:\n- `number`: número da ordem  \n- `status`: situação do serviço\n  - 1 = aberta  \n  - 2 = em andamento  \n  - 3 = concluída  \n  - 4 = cancelada \n- `description`: descrição do serviço\n- `createdAt`: data de criação da ordem\n- `clientName`: nome do cliente\n- `clientCPF`: cpf do cliente\n- `clientPhone`: telefone do cliente\n- `vehicleModel`: modelo do veiculo\n- `vehicleBrand`: marca do veiculo\n- `vehicleYear`: ano do veiculo\n- `vehiclePlate`: placa do veiculo\n- `vehicleType`: tipo do veiculo\n  - carro\n  - moto\n- `vehicleEngine`: motorização do veiculo \n\n### Regras importantes\n- NÃO inventar filtros  \n- NÃO enviar campos vazios  \n- Se nenhum filtro for informado, retornar todas as ordens  \n- Combinar filtros apenas quando fizer sentido  \n\n### Formatação da resposta (obrigatória)\n\nPara cada ordem retornada, exibir:  \n```\n########## ORDEM {{ json.number }} ##########\nStatus: {{\n  { \n    1: 'Aberta', \n    2: 'Em andamento', \n    3: 'Concluída', \n    4: 'Cancelada' \n  }[json.status] || 'Desconhecida'\n}}\nServiço: {{ json.description }}\nData: {{\n  new Date(json.createdAt).toLocaleString('pt-BR', {\n    day: '2-digit',\n    month: '2-digit',\n    year: 'numeric',\n    hour: '2-digit',\n    minute: '2-digit'\n  }).replace(',', ' -')\n}}\n\n--- CLIENTE ---\nNome: {{ json.clientName }}\nCPF: {{ json.clientCPF }}\nTel: {{ json.clientPhone }}\n\n--- VEÍCULO ---\n{{ json.vehicleBrand }} {{ json.vehicleModel }} ({{ json.vehicleYear }})\n{{ json.vehicleType }} • {{ json.vehicleEngine }}\nPlaca: {{ json.vehiclePlate }}\n############################################\n```\n\n### Regras de saída\n- Sempre listar TODAS as ordens retornadas  \n- Nunca resumir ou omitir resultados  \n- Manter exatamente esse formato  \n",
+        "url": "={{ $('URL').first().json.url }}/api/n8n/order/{{ $('Mapeia saida').item.json.contactId }}",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "jsonQuery": "={\n  \"number\": \"{{ $json.number }}\",\n  \"status\": \"{{ $json.status }}\",\n  \"client\": \"{{ $json.client }}\"\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "authorization",
+              "value": "=Bearer {{ $('Mapeia saida').item.json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        3184,
+        384
+      ],
+      "id": "8547e7f7-f732-464c-83bf-e3a4c41fa3e8",
+      "name": "read_order",
+      "notesInFlow": false
     }
   ],
   "connections": {
@@ -1419,17 +1419,6 @@
         ]
       ]
     },
-    "read_order": {
-      "ai_tool": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_tool",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "update_order": {
       "ai_tool": [
         [
@@ -1480,6 +1469,17 @@
           {
             "node": "If",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read_order": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
