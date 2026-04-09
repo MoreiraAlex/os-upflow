@@ -1,16 +1,25 @@
+import Unauthorized from '@/components/pages/Unauthorized'
 import { AppSidebar } from '@/components/sidebar/sidebar'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export default async function Layout({ children }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
+  const incomingHeaders = headers()
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/user`, {
+    headers: {
+      cookie: incomingHeaders.get('cookie') ?? '',
+    },
+    cache: 'no-store',
   })
 
-  if (!session) {
-    redirect('/login')
+  if (!res.ok) {
+    return redirect('/login')
+  }
+
+  const user = await res.json()
+  if (user.role === 'su') {
+    return <Unauthorized />
   }
 
   return (

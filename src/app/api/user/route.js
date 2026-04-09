@@ -21,12 +21,12 @@ export async function GET() {
       },
     })
 
-    if (!user?.workshopId) {
-      return NextResponse.json(
-        { error: 'User has no workshop' },
-        { status: 400 },
-      )
-    }
+    // if (!user?.workshopId) {
+    //   return NextResponse.json(
+    //     { error: 'User has no workshop' },
+    //     { status: 400 },
+    //   )
+    // }
 
     return NextResponse.json(user, { status: 200 })
   } catch (error) {

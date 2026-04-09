@@ -67,7 +67,7 @@ export async function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
 
-        {(user?.role === 'su' || user?.role === 'admin') && (
+        {user?.role === 'admin' && (
           <SidebarGroup>
             <SidebarGroupLabel>WhatsApp</SidebarGroupLabel>
             <SidebarMenu>
@@ -85,22 +85,6 @@ export async function AppSidebar() {
                   <Link href="/message">
                     <MessageSquare className="w-4 h-4" />
                     <span>Conversas</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {user?.role === 'su' && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Administração</SidebarGroupLabel>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/sudo">
-                    <Shield className="w-4 h-4" />
-                    <span>Painel do Sistema</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

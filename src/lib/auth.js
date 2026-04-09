@@ -6,7 +6,7 @@ import { nextCookies } from 'better-auth/next-js'
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: 'mongodb',
+    provider: 'postgresql',
   }),
   emailAndPassword: {
     enabled: true,
@@ -18,5 +18,21 @@ export const auth = betterAuth({
     }),
     bearer(),
     nextCookies(),
+  ],
+})
+
+export const authServer = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: 'postgresql',
+  }),
+  emailAndPassword: {
+    enabled: true,
+  },
+  plugins: [
+    username({
+      minUsernameLength: 3,
+      maxUsernameLength: 20,
+    }),
+    bearer(),
   ],
 })

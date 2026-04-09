@@ -84,7 +84,7 @@ export const columns = ({ onEdit, onDelete, user }) => [
               </TooltipContent>
             </Tooltip>
 
-            {(user?.role === 'su' || user?.role === 'admin') && (
+            {user?.role === 'admin' && (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div>

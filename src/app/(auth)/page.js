@@ -188,7 +188,7 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {(data?.user?.role === 'su' || data?.user?.role === 'admin') && (
+      {data?.user?.role === 'admin' && (
         <Card>
           <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <CardTitle>Últimas Mensagens Recebidas</CardTitle>

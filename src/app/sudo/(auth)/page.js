@@ -18,6 +18,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { formatarCNPJ, validarCNPJ } from '@/lib/utils'
+import Logout from '@/components/button/logout'
 
 export default function SudoPage() {
   const [invites, setInvites] = useState([])
@@ -172,9 +173,7 @@ export default function SudoPage() {
           </div>
         </div>
 
-        <Button asChild variant="secondary" className="w-full sm:w-auto">
-          <Link href="/">Voltar ao sistema</Link>
-        </Button>
+        <Logout className="w-full sm:w-auto p-4" variant="secondary" />
       </div>
 
       <Card>

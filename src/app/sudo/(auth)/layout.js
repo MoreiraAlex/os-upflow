@@ -1,5 +1,5 @@
 import { headers } from 'next/headers'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export default async function SudoLayout({ children }) {
   const incomingHeaders = headers()
@@ -10,9 +10,11 @@ export default async function SudoLayout({ children }) {
     cache: 'no-store',
   })
 
-  if (!res.ok) return notFound()
-  const user = await res.json()
+  if (!res.ok) {
+    return redirect('/sudo/login')
+  }
 
+  const user = await res.json()
   if (user.role !== 'su') {
     return notFound()
   }
