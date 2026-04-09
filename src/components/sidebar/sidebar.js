@@ -9,13 +9,7 @@ import {
   SidebarMenuButton,
   SidebarGroupLabel,
 } from '@/components/ui/sidebar'
-import {
-  ClipboardCheck,
-  Contact,
-  HomeIcon,
-  MessageSquare,
-  Shield,
-} from 'lucide-react'
+import { ClipboardCheck, Contact, HomeIcon, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { SidebarUserInfo } from './SidebarUserInfo'
 import { Logo } from '@/components/image/logo'
