@@ -18,7 +18,7 @@ export default async function Layout({ children }) {
   }
 
   const user = await res.json()
-  if (user.role === 'su') {
+  if (user.role === 'su' || user.role === '') {
     return <Unauthorized />
   }
 

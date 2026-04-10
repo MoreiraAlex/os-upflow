@@ -1,5 +1,6 @@
+import Unauthorized from '@/components/pages/Unauthorized'
 import { headers } from 'next/headers'
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 
 export default async function SudoLayout({ children }) {
   const incomingHeaders = headers()
@@ -15,8 +16,9 @@ export default async function SudoLayout({ children }) {
   }
 
   const user = await res.json()
+
   if (user.role !== 'su') {
-    return notFound()
+    return <Unauthorized />
   }
 
   return <>{children}</>

@@ -6,7 +6,7 @@ export default function Unauthorized() {
     <div className="min-h-[70vh] flex items-center justify-center p-6">
       <Card className="w-full max-w-md text-center">
         <CardContent className="p-8 space-y-4">
-          <div className="text-5xl font-bold">401</div>
+          <div className="text-5xl font-bold">403</div>
 
           <h1 className="text-xl font-semibold">Acesso não autorizado</h1>
 
