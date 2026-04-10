@@ -207,8 +207,6 @@ export default function SudoPage() {
                     <div
                       key={invite.id}
                       className="border rounded-lg p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 "
-                      href={`${process.env.NEXT_PUBLIC_BASE_URL}/signup/${invite.token}`}
-                      target="_blank"
                     >
                       <Link
                         key={invite.id}
