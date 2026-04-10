@@ -2,6 +2,7 @@ import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from 'next-themes'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata = {
   title: {
@@ -31,6 +32,7 @@ export default async function RootLayout({ children }) {
           {children}
           <Toaster />
           <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
