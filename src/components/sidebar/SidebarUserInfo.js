@@ -54,7 +54,7 @@ export async function SidebarUserInfo() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48">
-        <DropdownMenuItemClient />
+        {/* <DropdownMenuItemClient /> */}
         <DropdownMenuItem>
           <Logout />
         </DropdownMenuItem>

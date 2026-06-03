@@ -6,7 +6,8 @@ export function Logo({ width, height }) {
   const { theme } = useTheme()
   return (
     <Image
-      src={theme === 'dark' ? '/darkLogo.png' : '/logo.png'}
+      // src={theme === 'dark' ? '/darkLogo.png' : '/logo.png'}
+      src="/logo.png"
       alt="OS Upflow"
       width={width}
       height={height}

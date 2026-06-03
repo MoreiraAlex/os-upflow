@@ -73,7 +73,7 @@ export default function LoginPage() {
       <div className="flex items-center justify-center px-6 lg:col-span-3">
         <div className="w-full max-w-sm">
           <div className="mb-8">
-            <Logo width={800} height={250} />
+            <Logo width={500} height={200} />
 
             <p className="mt-1 text-sm text-muted-foreground">
               Acesse sua conta para continuar

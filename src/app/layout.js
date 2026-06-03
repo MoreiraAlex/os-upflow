@@ -22,6 +22,7 @@ export const metadata = {
     'OS',
   ],
   // metadataBase: new URL('https://osupflow.com'),
+  metadataBase: new URL('https://osupflow.moreiracode.com/'),
 }
 
 export default async function RootLayout({ children }) {

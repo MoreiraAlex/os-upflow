@@ -29,7 +29,7 @@ export async function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="pt-4">
         <Link href="/">
-          <Logo width={200} height={80} />
+          <Logo width={500} height={200} />
         </Link>
       </SidebarHeader>
 
