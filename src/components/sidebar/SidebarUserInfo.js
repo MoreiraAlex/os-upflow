@@ -10,7 +10,7 @@ import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Logout from '@/components/button/logout'
-import { DropdownMenuItemClient } from '@/components/Dropdown/DropdownMenuItemClient'
+// import { DropdownMenuItemClient } from '@/components/Dropdown/DropdownMenuItemClient'
 
 export async function SidebarUserInfo() {
   const session = await auth.api.getSession({
